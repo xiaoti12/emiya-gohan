@@ -1,0 +1,96 @@
+.chatCard,
+.messageCard,
+.inputCard {
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.chatCard h2,
+.messageCard h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+.chatCard p,
+.messageCard p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.suggestionList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.suggestion {
+  padding: 12px;
+  border-radius: 18px;
+  color: #7d6152;
+  font-weight: 900;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: var(--shadow-cutout);
+}
+
+.messageCard {
+  display: grid;
+  gap: 10px;
+}
+
+.messageBubble {
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.messageBubble strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--color-ink);
+}
+
+.inputCard {
+  position: sticky;
+  bottom: var(--safe-bottom);
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  gap: 10px;
+}
+
+.inputRow input {
+  width: 100%;
+  height: 52px;
+  border: 1px solid rgba(139, 88, 35, 0.15);
+  outline: none;
+  border-radius: 18px;
+  padding: 0 14px;
+  color: var(--color-ink);
+  background: #fff7e6;
+  box-shadow: inset 2px 2px 6px rgba(112, 69, 32, 0.06);
+}
+
+.sendButton,
+.settingsButton {
+  border-radius: 18px;
+  color: #fffaf0;
+  font-weight: 950;
+  background: var(--color-orange);
+  box-shadow: 4px 4px 0 rgba(111, 62, 24, 0.18);
+}
+
+.settingsButton {
+  display: inline-grid;
+  place-items: center;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 0 16px;
+}

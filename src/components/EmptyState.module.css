@@ -1,0 +1,34 @@
+.empty {
+  padding: 28px 22px;
+  text-align: center;
+}
+
+.mark {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 20px;
+  color: #8b511e;
+  font-weight: 950;
+  background: #ffe7ae;
+  box-shadow: var(--shadow-cutout);
+  transform: rotate(-4deg);
+}
+
+.empty h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.action {
+  margin-top: 16px;
+}

@@ -1,0 +1,21 @@
+.chip {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border-radius: 999px;
+  color: #765d50;
+  font-size: 13px;
+  font-weight: 900;
+  background: #ffe7ae;
+  box-shadow: 2px 3px 0 rgba(111, 62, 24, 0.12);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.active {
+  color: #fff;
+  background: var(--color-leaf);
+}
+
+.chip:active {
+  transform: translate(2px, 2px) scale(0.985);
+  box-shadow: 2px 2px 8px rgba(86, 54, 26, 0.12);
+}

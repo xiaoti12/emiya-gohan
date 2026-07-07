@@ -1,0 +1,104 @@
+.stage {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+}
+
+.shell {
+  position: relative;
+  width: min(100%, var(--max-mobile-width));
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255, 220, 130, 0.42), transparent 26%),
+    linear-gradient(180deg, #fffaf0 0%, #fff4df 55%, #ffefe6 100%);
+  box-shadow: 0 0 0 1px rgba(139, 87, 35, 0.08), 0 24px 70px rgba(77, 47, 23, 0.16);
+}
+
+.shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image:
+    radial-gradient(rgba(115, 79, 45, 0.18) 0.7px, transparent 0.7px),
+    radial-gradient(rgba(255, 255, 255, 0.65) 0.8px, transparent 0.8px);
+  background-position: 0 0, 9px 11px;
+  background-size: 18px 18px, 24px 24px;
+  mix-blend-mode: multiply;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  overflow-y: auto;
+  padding: max(24px, env(safe-area-inset-top)) var(--content-x) 38px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.paperLayer {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  box-shadow: var(--shadow-sm);
+  transform-style: preserve-3d;
+}
+
+.blobA {
+  width: 116px;
+  height: 96px;
+  top: 30px;
+  right: -36px;
+  background: var(--color-paper-blue);
+  border-radius: 54% 46% 50% 42%;
+  transform: rotate(9deg);
+  clip-path: polygon(4% 16%, 96% 8%, 89% 92%, 12% 100%);
+}
+
+.blobB {
+  width: 108px;
+  height: 88px;
+  top: 210px;
+  left: -38px;
+  background: var(--color-paper-pink);
+  border-radius: 40% 56% 46% 58%;
+  transform: rotate(-10deg);
+  clip-path: polygon(10% 8%, 94% 2%, 100% 86%, 5% 96%);
+}
+
+.blobC {
+  width: 156px;
+  height: 120px;
+  right: -54px;
+  bottom: 150px;
+  background: var(--color-paper-green);
+  border-radius: 42% 58% 51% 46%;
+  transform: rotate(-7deg);
+  clip-path: polygon(0 15%, 88% 0, 100% 84%, 12% 100%);
+}
+
+@media (max-width: 520px) {
+  .stage {
+    display: block;
+  }
+
+  .shell {
+    width: 100%;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .content {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}

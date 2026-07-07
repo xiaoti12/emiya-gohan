@@ -1,0 +1,75 @@
+.card {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  border: 1px solid rgba(133, 82, 29, 0.08);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transform-style: preserve-3d;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(95, 65, 39, 0.12) 0.65px, transparent 0.65px);
+  background-size: 13px 13px;
+  opacity: 0.16;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.white {
+  background: rgba(255, 253, 247, 0.94);
+}
+
+.warm {
+  background: var(--color-paper-warm);
+}
+
+.green {
+  background: var(--color-paper-green);
+}
+
+.blue {
+  background: var(--color-paper-blue);
+}
+
+.pink {
+  background: var(--color-paper-pink);
+}
+
+.kraft {
+  background: var(--color-kraft);
+}
+
+.left {
+  transform: rotate(-0.6deg);
+  clip-path: polygon(0 4%, 98% 0, 100% 94%, 4% 100%);
+}
+
+.right {
+  transform: rotate(0.6deg);
+  clip-path: polygon(2% 0, 100% 4%, 96% 100%, 0 95%);
+}
+
+.interactive {
+  transition: transform var(--transition-paper), box-shadow var(--transition-paper), filter var(--transition-paper);
+}
+
+@media (hover: hover) {
+  .interactive:hover {
+    transform: translateY(-4px) rotate(0deg);
+    box-shadow: 8px 12px 24px rgba(86, 54, 26, 0.18);
+  }
+}
+
+.interactive:active {
+  transform: translate(2px, 2px) rotate(0deg) scale(0.985);
+  box-shadow: 2px 2px 8px rgba(86, 54, 26, 0.12);
+}

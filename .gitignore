@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables (keep .env.example as template)
+.env
+.env.local
+.env.*.local
+
+# Cloudflare Workers
+.wrangler/
+
+# Vercel
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# AI
+.claude/
+.ai_docs/

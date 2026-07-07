@@ -1,0 +1,13 @@
+name = "emiya-gohan-api"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+
+[vars]
+# 多个域名用逗号分隔；本地开发默认允许 Vite 端口。
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "emiya-gohan"
+# 创建 D1 后替换为真实 database_id。
+database_id = "00000000-0000-0000-0000-000000000000"
