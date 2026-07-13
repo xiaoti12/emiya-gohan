@@ -1,6 +1,7 @@
 CREATE TABLE families (
   id TEXT PRIMARY KEY,
   display_name TEXT NOT NULL,
+  normalized_name TEXT NOT NULL UNIQUE,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

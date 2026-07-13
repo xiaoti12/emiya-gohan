@@ -9,6 +9,10 @@ export class ApiError extends Error {
   }
 }
 
+export function isApiErrorCode(error: unknown, code: string) {
+  return error instanceof ApiError && error.code === code;
+}
+
 export function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
     return error.message;

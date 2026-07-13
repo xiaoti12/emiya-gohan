@@ -1,30 +1,35 @@
-import { mockIngredients } from "./mock";
-import type { CreateIngredientInput, Ingredient, IngredientCategory } from "./types";
+import { apiFetch } from "../../lib/apiClient";
+import type {
+  CreateIngredientInput,
+  CreateIngredientsResult,
+  DeleteIngredientResult,
+  Ingredient,
+  IngredientCategory,
+  UpdateIngredientInput,
+} from "./types";
 
-let localIngredients = [...mockIngredients];
-
-export async function listIngredients(category?: IngredientCategory) {
-  return category ? localIngredients.filter((item) => item.category === category) : localIngredients;
+export function listIngredients(category?: IngredientCategory) {
+  const query = category ? `?category=${encodeURIComponent(category)}` : "";
+  return apiFetch<Ingredient[]>(`/ingredients/v1${query}`);
 }
 
-export async function createIngredients(items: CreateIngredientInput[]) {
-  const created: Ingredient[] = items
-    .filter((item) => item.name.trim())
-    .map((item) => ({
-      id: `ing-local-${crypto.randomUUID()}`,
-      name: item.name.trim(),
-      category: item.category ?? "other",
-      quantity: item.quantity,
-      unit: item.unit,
-      expireDate: item.expireDate,
-    }));
-
-  localIngredients = [...created, ...localIngredients];
-  return { createdCount: created.length, skippedCount: items.length - created.length, items: created };
+export function createIngredients(items: CreateIngredientInput[]) {
+  return apiFetch<CreateIngredientsResult>("/ingredients/v1", {
+    method: "POST",
+    body: JSON.stringify({ items }),
+  });
 }
 
-export async function deleteIngredient(id: string) {
-  const target = localIngredients.find((item) => item.id === id);
-  localIngredients = localIngredients.filter((item) => item.id !== id);
-  return target ?? null;
+export function updateIngredient(id: string, input: UpdateIngredientInput) {
+  return apiFetch<Ingredient>(`/ingredients/v1/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteIngredient(id: string) {
+  return apiFetch<DeleteIngredientResult>(
+    `/ingredients/v1/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+  );
 }

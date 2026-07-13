@@ -1,15 +1,8 @@
 import type { Env } from "../types";
 import { createFamily, verifyFamily } from "../services/familyService";
 import { HttpError } from "../utils/httpError";
+import { readJson } from "../utils/request";
 import { jsonOk } from "../utils/response";
-
-async function readJson(request: Request) {
-  try {
-    return await request.json();
-  } catch {
-    throw new HttpError(400, "INVALID_JSON", "请求体不是合法 JSON");
-  }
-}
 
 export async function handleFamiliesRoute(request: Request, env: Env) {
   const url = new URL(request.url);

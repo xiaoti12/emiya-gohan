@@ -1,8 +1,12 @@
 import { storageKeys } from "../../lib/storageKeys";
 import type { Family } from "./types";
 
+export function loadStoredFamilyId() {
+  return localStorage.getItem(storageKeys.familyId);
+}
+
 export function loadStoredFamily(): Family | null {
-  const familyId = localStorage.getItem(storageKeys.familyId);
+  const familyId = loadStoredFamilyId();
   const displayName = localStorage.getItem(storageKeys.familyName);
 
   if (!familyId || !displayName) {

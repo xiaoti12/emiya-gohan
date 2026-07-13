@@ -10,6 +10,8 @@ import { getRecommendations } from "../features/recommendations/api";
 import { recommendationTags } from "../features/recipes/mock";
 import type { Recipe } from "../features/recipes/types";
 import { createRecipeRecord } from "../features/recipeRecords/api";
+import { formatFamilyTitle } from "../features/family/familyName";
+import { loadStoredFamily } from "../features/family/familyStore";
 import { nearestWeekendISO, todayISO, tomorrowISO } from "../lib/date";
 import styles from "./HomePage.module.css";
 
@@ -30,6 +32,7 @@ const dateMap: Record<PlanDateOption, string> = {
 
 export function HomePage() {
   const navigate = useNavigate();
+  const family = loadStoredFamily();
   const [recommendOpen, setRecommendOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState("全部");
   const [recommendations, setRecommendations] = useState<Recipe[]>([]);
@@ -151,7 +154,7 @@ export function HomePage() {
         <header className={styles.hero}>
           <div className={styles.heroCard}>
             <p className={styles.eyebrow}>家庭厨房</p>
-            <h1>厨房助手</h1>
+            <h1>{formatFamilyTitle(family?.displayName ?? "")}</h1>
             <p>看看冰箱里有什么，今天就少纠结一点。</p>
           </div>
           <div className={styles.cutoutPot} aria-hidden="true">
