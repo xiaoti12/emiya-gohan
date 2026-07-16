@@ -1,7 +1,7 @@
 import type { Recipe } from "./types";
 
 type RecipeCardProps = {
-  recipe: Recipe;
+  recipe: Pick<Recipe, "name" | "summary">;
 };
 
 export function RecipeCard({ recipe }: RecipeCardProps) {

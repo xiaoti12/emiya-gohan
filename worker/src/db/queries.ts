@@ -77,3 +77,179 @@ export const ingredientQueries = {
     RETURNING id
   `,
 } as const;
+
+const recipeColumns = `
+  id,
+  family_id,
+  parent_recipe_id,
+  name,
+  normalized_name,
+  category,
+  tags,
+  source,
+  summary,
+  steps_json,
+  updated_at
+`;
+
+const effectiveRecipesCte = `
+  WITH effective_recipes AS (
+    SELECT ${recipeColumns}
+    FROM recipes
+    WHERE family_id = ?
+      AND deleted_at IS NULL
+
+    UNION ALL
+
+    SELECT ${recipeColumns}
+    FROM recipes base
+    WHERE base.family_id IS NULL
+      AND base.deleted_at IS NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM recipes version
+        WHERE version.family_id = ?
+          AND version.parent_recipe_id = base.id
+          AND version.deleted_at IS NULL
+      )
+  )
+`;
+
+const recipeFilterClause = `
+  (
+    ? IS NULL
+    OR instr(r.normalized_name, ?) > 0
+    OR EXISTS (
+      SELECT 1
+      FROM json_each(r.tags) tag
+      WHERE instr(lower(replace(CAST(tag.value AS TEXT), ' ', '')), ?) > 0
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM recipe_ingredients ri
+      WHERE ri.recipe_id = r.id
+        AND instr(ri.normalized_name, ?) > 0
+    )
+  )
+  AND (? IS NULL OR lower(replace(r.category, ' ', '')) = ?)
+  AND (
+    ? IS NULL
+    OR EXISTS (
+      SELECT 1
+      FROM json_each(r.tags) tag
+      WHERE lower(replace(CAST(tag.value AS TEXT), ' ', '')) = ?
+    )
+  )
+`;
+
+export const recipeQueries = {
+  list: `
+    ${effectiveRecipesCte}
+    SELECT ${recipeColumns}
+    FROM effective_recipes r
+    WHERE ${recipeFilterClause}
+      AND (
+        ? IS NULL
+        OR r.updated_at < ?
+        OR (r.updated_at = ? AND r.id < ?)
+      )
+    ORDER BY r.updated_at DESC, r.id DESC
+    LIMIT ?
+  `,
+  findAnchor: `
+    ${effectiveRecipesCte}
+    SELECT r.updated_at, r.id
+    FROM effective_recipes r
+    WHERE r.id = ?
+      AND ${recipeFilterClause}
+  `,
+  findFamilyById: `
+    SELECT ${recipeColumns}
+    FROM recipes
+    WHERE id = ? AND family_id = ? AND deleted_at IS NULL
+  `,
+  findBaseById: `
+    SELECT ${recipeColumns}
+    FROM recipes
+    WHERE id = ? AND family_id IS NULL AND deleted_at IS NULL
+  `,
+  findAnyActiveById: `
+    SELECT ${recipeColumns}
+    FROM recipes
+    WHERE id = ? AND deleted_at IS NULL
+  `,
+  findFamilyVersionByParent: `
+    SELECT ${recipeColumns}
+    FROM recipes
+    WHERE family_id = ?
+      AND parent_recipe_id = ?
+      AND deleted_at IS NULL
+  `,
+  findFamilyNameConflict: `
+    SELECT id
+    FROM recipes
+    WHERE family_id = ?
+      AND normalized_name = ?
+      AND deleted_at IS NULL
+      AND (? IS NULL OR id != ?)
+  `,
+  create: `
+    INSERT INTO recipes (
+      id,
+      family_id,
+      parent_recipe_id,
+      name,
+      normalized_name,
+      category,
+      tags,
+      source,
+      summary,
+      steps_json
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    RETURNING ${recipeColumns}
+  `,
+  update: `
+    UPDATE recipes
+    SET
+      name = ?,
+      normalized_name = ?,
+      category = ?,
+      tags = ?,
+      summary = ?,
+      steps_json = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND family_id = ? AND deleted_at IS NULL
+    RETURNING ${recipeColumns}
+  `,
+  remove: `
+    UPDATE recipes
+    SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND family_id = ? AND deleted_at IS NULL
+    RETURNING id
+  `,
+  listIngredientsByRecipeIdsPrefix: `
+    SELECT id, recipe_id, name, normalized_name, amount
+    FROM recipe_ingredients
+    WHERE recipe_id IN
+  `,
+  listIngredientsByRecipeId: `
+    SELECT id, recipe_id, name, normalized_name, amount
+    FROM recipe_ingredients
+    WHERE recipe_id = ?
+  `,
+  deleteIngredientsByRecipeId: `
+    DELETE FROM recipe_ingredients
+    WHERE recipe_id = ?
+  `,
+  createIngredient: `
+    INSERT INTO recipe_ingredients (
+      id,
+      recipe_id,
+      name,
+      normalized_name,
+      amount
+    )
+    VALUES (?, ?, ?, ?, ?)
+  `,
+} as const;

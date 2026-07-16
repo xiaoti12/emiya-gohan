@@ -1,8 +1,13 @@
-import { listRecipes } from "../recipes/api";
+import { mockRecipes } from "../recipes/mock";
 import type { Recipe } from "../recipes/types";
 
 export async function getRecommendations(tag = "全部", limit = 3, seed = Date.now()) {
-  const recipes = await listRecipes({ tag });
+  const recipes =
+    !tag || tag === "全部"
+      ? mockRecipes
+      : mockRecipes.filter(
+          (recipe) => recipe.category === tag || recipe.tags.includes(tag),
+        );
   return shuffleBySeed(recipes, seed).slice(0, limit);
 }
 

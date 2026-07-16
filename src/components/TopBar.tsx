@@ -9,6 +9,8 @@ type TopBarProps = {
   actionTo?: string;
   onAction?: () => void;
   showBack?: boolean;
+  backTo?: string;
+  backLabel?: string;
 };
 
 export function TopBar({
@@ -19,6 +21,8 @@ export function TopBar({
   actionTo,
   onAction,
   showBack = true,
+  backTo,
+  backLabel = "返回",
 }: TopBarProps) {
   const navigate = useNavigate();
   const action = actionTo ? (
@@ -36,7 +40,18 @@ export function TopBar({
   return (
     <header className={styles.topbar}>
       {showBack ? (
-        <button className={styles.backButton} type="button" aria-label="返回首页" onClick={() => navigate(-1)}>
+        <button
+          className={styles.backButton}
+          type="button"
+          aria-label={backLabel}
+          onClick={() => {
+            if (backTo) {
+              navigate(backTo);
+              return;
+            }
+            navigate(-1);
+          }}
+        >
           ‹
         </button>
       ) : null}

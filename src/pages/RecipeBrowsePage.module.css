@@ -194,6 +194,56 @@
   grid-column: 1 / -1;
 }
 
+.loadingText {
+  margin: 24px 0;
+  color: var(--color-muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.retryButton,
+.loadMoreButton {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 16px;
+  color: #fffaf0;
+  font-weight: 950;
+  background: var(--color-orange);
+  box-shadow: 3px 3px 0 rgba(111, 62, 24, 0.18);
+}
+
+.retryButton {
+  margin-top: 8px;
+}
+
+.loadMoreWrap {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  padding: 8px 0 4px;
+}
+
+.loadMoreError {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  color: var(--color-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.loadMoreButton:disabled {
+  opacity: 0.7;
+}
+
+.endHint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 @media (max-width: 380px) {
   .recipeGrid {
     gap: 11px;

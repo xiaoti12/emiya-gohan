@@ -7,7 +7,7 @@ import { EmptyState } from "../components/EmptyState";
 import { PaperCard } from "../components/PaperCard";
 import { Toast } from "../components/Toast";
 import { getRecommendations } from "../features/recommendations/api";
-import { recommendationTags } from "../features/recipes/mock";
+import { recommendationTags } from "../features/recipes/constants";
 import type { Recipe } from "../features/recipes/types";
 import { createRecipeRecord } from "../features/recipeRecords/api";
 import { formatFamilyTitle } from "../features/family/familyName";
@@ -183,7 +183,7 @@ export function HomePage() {
               </PaperCard>
             );
 
-            return entry.to ? (
+            return "to" in entry && entry.to ? (
               <Link key={entry.title} to={entry.to} aria-label={entry.title.replace("\n", "")}>
                 {card}
               </Link>

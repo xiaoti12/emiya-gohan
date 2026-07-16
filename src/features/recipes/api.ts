@@ -1,19 +1,53 @@
-import { mockRecipes } from "./mock";
-import type { Recipe, RecipeQuery } from "./types";
+import { apiFetch } from "../../lib/apiClient";
+import { RECIPE_PAGE_SIZE } from "./constants";
+import type {
+  DeleteRecipeResult,
+  RecipeDetail,
+  RecipeInput,
+  RecipePage,
+  RecipeQuery,
+} from "./types";
 
-function matchRecipe(recipe: Recipe, query: RecipeQuery) {
-  const keyword = query.q?.trim().toLowerCase();
-  const matchCategory = !query.category || query.category === "全部" || recipe.category === query.category || recipe.tags.includes(query.category);
-  const matchTag = !query.tag || query.tag === "全部" || recipe.tags.includes(query.tag);
-  const haystack = `${recipe.name} ${recipe.category} ${recipe.tags.join(" ")} ${recipe.summary} ${recipe.ingredients.map((item) => item.name).join(" ")}`.toLowerCase();
-
-  return matchCategory && matchTag && (!keyword || haystack.includes(keyword));
+function buildListQuery(query: RecipeQuery = {}) {
+  const params = new URLSearchParams();
+  const q = query.q?.trim();
+  if (q) params.set("q", q);
+  if (query.category && query.category !== "全部") {
+    params.set("category", query.category);
+  }
+  if (query.tag && query.tag !== "全部") {
+    params.set("tag", query.tag);
+  }
+  if (query.cursor) params.set("cursor", query.cursor);
+  params.set("limit", String(query.limit ?? RECIPE_PAGE_SIZE));
+  const text = params.toString();
+  return text ? `?${text}` : "";
 }
 
-export async function listRecipes(query: RecipeQuery = {}) {
-  return mockRecipes.filter((recipe) => matchRecipe(recipe, query));
+export function listRecipes(query: RecipeQuery = {}, signal?: AbortSignal) {
+  return apiFetch<RecipePage>(`/recipes/v1${buildListQuery(query)}`, { signal });
 }
 
-export async function getRecipeById(id: string) {
-  return mockRecipes.find((recipe) => recipe.id === id) ?? null;
+export function getRecipeById(id: string, signal?: AbortSignal) {
+  return apiFetch<RecipeDetail>(`/recipes/v1/${encodeURIComponent(id)}`, { signal });
+}
+
+export function createRecipe(input: RecipeInput) {
+  return apiFetch<RecipeDetail>("/recipes/v1", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateRecipe(id: string, input: RecipeInput) {
+  return apiFetch<RecipeDetail>(`/recipes/v1/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteRecipe(id: string) {
+  return apiFetch<DeleteRecipeResult>(`/recipes/v1/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }

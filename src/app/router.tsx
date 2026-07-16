@@ -5,10 +5,13 @@ import { HomePage } from "../pages/HomePage";
 import { IngredientsPage } from "../pages/IngredientsPage";
 import { RecipeBrowsePage } from "../pages/RecipeBrowsePage";
 import { RecipeDetailPage } from "../pages/RecipeDetailPage";
+import { RecipeFormPage } from "../pages/RecipeFormPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <HomePage /> },
   { path: "/recipes", element: <RecipeBrowsePage /> },
+  { path: "/recipes/new", element: <RecipeFormPage /> },
+  { path: "/recipes/:id/edit", element: <RecipeFormPage /> },
   { path: "/recipes/:id", element: <RecipeDetailPage /> },
   { path: "/ingredients", element: <IngredientsPage /> },
   { path: "/chat", element: <ChatPage /> },

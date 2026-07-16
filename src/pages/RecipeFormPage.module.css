@@ -1,0 +1,228 @@
+.loadingText {
+  margin: 24px 0;
+  color: var(--color-muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+  padding-bottom: calc(var(--safe-bottom) + 12px);
+}
+
+.section {
+  padding: 18px;
+}
+
+.section h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sectionHead h2 {
+  margin: 0;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field span {
+  color: #7b5d4a;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.field input,
+.field textarea,
+.ingredientRow input,
+.stepRow textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(139, 88, 35, 0.15);
+  border-radius: 16px;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 2px 2px 6px rgba(112, 69, 32, 0.05);
+}
+
+.field input:focus,
+.field textarea:focus,
+.ingredientRow input:focus,
+.stepRow textarea:focus {
+  outline: none;
+  border-color: rgba(238, 139, 53, 0.56);
+  box-shadow: 0 0 0 4px rgba(238, 139, 53, 0.12);
+}
+
+.field em,
+.inlineError {
+  color: var(--color-danger);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.formError {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: #8a3b2b;
+  font-weight: 800;
+  background: #ffe8df;
+  box-shadow: 2px 3px 0 rgba(111, 62, 24, 0.08);
+}
+
+.chipRow,
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagList {
+  margin-bottom: 12px;
+}
+
+.tagChip,
+.ghostButton,
+.removeButton,
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-height: 40px;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+.tagChip {
+  padding: 0 12px;
+  color: #7b5d4a;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 1px 2px 0 rgba(111, 62, 24, 0.09);
+}
+
+.ghostButton {
+  padding: 0 12px;
+  color: #9b5a20;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 1px 2px 0 rgba(111, 62, 24, 0.09);
+}
+
+.dynamicList {
+  display: grid;
+  gap: 10px;
+}
+
+.ingredientRow,
+.stepRow {
+  display: grid;
+  gap: 8px;
+  align-items: start;
+}
+
+.ingredientRow {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 42px;
+}
+
+.stepRow {
+  grid-template-columns: 28px minmax(0, 1fr) 42px;
+}
+
+.stepIndex {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 950;
+  background: var(--color-orange);
+}
+
+.removeButton {
+  width: 42px;
+  color: #8a3b2b;
+  background: #ffe8df;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.footer {
+  display: grid;
+  gap: 10px;
+}
+
+.primaryButton {
+  min-height: 50px;
+  color: #fffaf0;
+  background: var(--color-orange);
+  box-shadow: 4px 4px 0 rgba(111, 62, 24, 0.2);
+}
+
+.secondaryButton {
+  color: #7d6152;
+  background: #fff0d0;
+}
+
+.dangerButton {
+  min-height: 50px;
+  color: #fffaf0;
+  background: var(--color-danger);
+  box-shadow: 4px 4px 0 rgba(111, 62, 24, 0.16);
+}
+
+.confirmText {
+  margin: 0 0 16px;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.confirmActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.confirmActions button {
+  min-height: 48px;
+}
+
+@media (max-width: 380px) {
+  .ingredientRow {
+    grid-template-columns: minmax(0, 1fr) 42px;
+  }
+
+  .ingredientRow input:nth-child(2) {
+    grid-column: 1 / 2;
+  }
+
+  .ingredientRow .removeButton {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+  }
+}

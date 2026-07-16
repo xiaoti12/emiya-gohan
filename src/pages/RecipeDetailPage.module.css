@@ -40,11 +40,19 @@
   box-shadow: 1px 2px 0 rgba(111, 62, 24, 0.09);
 }
 
-.summary {
+.summary,
+.readOnlyNote,
+.emptySteps {
   margin: 0;
   color: var(--color-muted);
   font-size: 14px;
   line-height: 1.6;
+}
+
+.readOnlyNote {
+  margin-bottom: 10px;
+  color: #9b5a20;
+  font-weight: 800;
 }
 
 .sectionCard h2 {
@@ -81,12 +89,12 @@
 
 .actionRow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   padding-bottom: var(--safe-bottom);
 }
 
-.actionButton {
+.actionButton,
+.retryButton {
   min-height: 50px;
   border-radius: 18px;
   color: #fffaf0;
@@ -95,7 +103,9 @@
   box-shadow: 4px 4px 0 rgba(111, 62, 24, 0.2);
 }
 
-.secondaryButton {
-  color: #7d6152;
-  background: #fff0d0;
+.loadingText {
+  margin: 24px 0;
+  color: var(--color-muted);
+  text-align: center;
+  font-weight: 800;
 }
