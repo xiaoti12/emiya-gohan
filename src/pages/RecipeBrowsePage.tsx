@@ -156,8 +156,20 @@ export function RecipeBrowsePage() {
                 tilt={index % 2 ? "right" : "left"}
                 interactive
               >
-                <div className={styles.recipeCover}>
-                  <img src="/dish.jpg" alt={recipe.name} loading="lazy" />
+                <div
+                  className={
+                    recipe.coverImageUrl
+                      ? styles.recipeCover
+                      : `${styles.recipeCover} ${styles.recipeCoverEmpty}`
+                  }
+                >
+                  {recipe.coverImageUrl ? (
+                    <img
+                      src={recipe.coverImageUrl}
+                      alt={recipe.name}
+                      loading="lazy"
+                    />
+                  ) : null}
                 </div>
                 <div className={styles.recipeBody}>
                   <h2 className={styles.recipeName}>{recipe.name}</h2>

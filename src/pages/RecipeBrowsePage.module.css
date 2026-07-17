@@ -133,6 +133,13 @@
   object-fit: cover;
 }
 
+.recipeCoverEmpty {
+  background:
+    radial-gradient(rgba(95, 65, 39, 0.1) 0.7px, transparent 0.7px),
+    linear-gradient(145deg, #ffe7ae 0%, #f6d48a 48%, #f0c57a 100%);
+  background-size: 8px 8px, auto;
+}
+
 .recipeCover::after {
   content: "";
   position: absolute;

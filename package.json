@@ -11,7 +11,8 @@
     "worker:dev": "wrangler dev --config worker/wrangler.toml",
     "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
     "worker:migrate:local": "wrangler d1 migrations apply emiya-gohan --local --config worker/wrangler.toml",
-    "worker:migrate:remote": "wrangler d1 migrations apply emiya-gohan --remote --config worker/wrangler.toml"
+    "worker:migrate:remote": "wrangler d1 migrations apply emiya-gohan --remote --config worker/wrangler.toml",
+    "import:howtocook": "tsx scripts/import-howtocook.ts"
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -24,6 +25,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^5.0.0",
+    "tsx": "^4.23.1",
     "typescript": "~5.8.3",
     "vite": "^7.0.0",
     "wrangler": "^4.22.0"

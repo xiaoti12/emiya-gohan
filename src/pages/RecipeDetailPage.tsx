@@ -118,8 +118,16 @@ export function RecipeDetailPage() {
         onAction={handleEdit}
       />
       <PaperCard className={styles.coverCard} tone="white" tilt="left">
-        <div className={styles.cover}>
-          <img src="/dish.jpg" alt={recipe.name} />
+        <div
+          className={
+            recipe.coverImageUrl
+              ? styles.cover
+              : `${styles.cover} ${styles.coverEmpty}`
+          }
+        >
+          {recipe.coverImageUrl ? (
+            <img src={recipe.coverImageUrl} alt={recipe.name} />
+          ) : null}
         </div>
       </PaperCard>
       <PaperCard className={styles.metaCard} tone="warm" tilt="right">

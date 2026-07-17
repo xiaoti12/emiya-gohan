@@ -13,6 +13,7 @@ export type RecipeListItem = {
   source: RecipeSource;
   parentRecipeId: string | null;
   summary: string;
+  coverImageUrl: string | null;
   ingredients: RecipeIngredient[];
 };
 
@@ -30,6 +31,7 @@ export type Recipe = {
   tags: string[];
   source: RecipeSource;
   summary: string;
+  coverImageUrl?: string | null;
   ingredients: RecipeIngredient[];
   steps: string[];
 };

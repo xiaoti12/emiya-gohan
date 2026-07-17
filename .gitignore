@@ -32,3 +32,6 @@ Thumbs.db
 .claude/
 .ai_docs/
 CLAUDE.md
+
+# HowToCook import intermediate outputs
+scripts/out/

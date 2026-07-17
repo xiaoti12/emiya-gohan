@@ -41,6 +41,7 @@ export type RecipeListItemDto = {
   source: RecipeSource;
   parentRecipeId: string | null;
   summary: string;
+  coverImageUrl: string | null;
   ingredients: RecipeIngredientDto[];
 };
 
@@ -65,6 +66,7 @@ type RecipeRow = {
   tags: string;
   source: RecipeSource;
   summary: string | null;
+  cover_image_url: string | null;
   steps_json: string;
   updated_at: string;
 };
@@ -385,6 +387,7 @@ function toListItem(
     source: row.source,
     parentRecipeId: row.parent_recipe_id,
     summary: row.summary ?? "",
+    coverImageUrl: row.cover_image_url ?? null,
     ingredients,
   };
 }
@@ -595,6 +598,7 @@ export async function createRecipe(env: Env, familyId: string, body: unknown) {
       JSON.stringify(fields.tags),
       "custom",
       fields.summary,
+      null,
       JSON.stringify(fields.steps),
     ),
     ...buildIngredientStatements(env, recipeId, fields.ingredients),
@@ -777,6 +781,7 @@ async function deriveFromBase(
       JSON.stringify(tags),
       "custom",
       summary,
+      base.cover_image_url,
       JSON.stringify(steps),
     ),
     ...buildIngredientStatements(env, derivedId, ingredients),

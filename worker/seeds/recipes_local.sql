@@ -1,10 +1,12 @@
+-- DEPRECATED: 本地 4 道手写验收菜，正式环境请改用 recipes_howtocook.sql。
+-- 生成方式见 scripts/import-howtocook.ts。
 -- Phase 3 本地验收用公共基础菜。固定 ID + INSERT OR IGNORE，可重复执行。
 -- 执行示例：
 -- wrangler d1 execute emiya-gohan --local --config worker/wrangler.toml --file=worker/seeds/recipes_local.sql
 
 INSERT OR IGNORE INTO recipes (
   id, family_id, parent_recipe_id,
-  name, normalized_name, category, tags, source, summary, steps_json
+  name, normalized_name, category, tags, source, summary, cover_image_url, steps_json
 ) VALUES
 (
   'base_recipe_green_pepper_pork',
@@ -16,6 +18,7 @@ INSERT OR IGNORE INTO recipes (
   '["下饭","快手"]',
   'howtocook',
   '家常下饭荤菜，青椒脆嫩，肉丝滑嫩。',
+  NULL,
   '["肉丝加料酒、生抽、淀粉抓匀腌制。","热锅下油，滑炒肉丝至变色盛出。","青椒切丝下锅快炒，倒回肉丝调味出锅。"]'
 ),
 (
@@ -28,6 +31,7 @@ INSERT OR IGNORE INTO recipes (
   '["素菜","快手"]',
   'howtocook',
   '经典家常菜，酸甜开胃。',
+  NULL,
   '["鸡蛋打散加少许盐。","番茄切块，热锅炒出汁水。","倒入鸡蛋翻炒，调味出锅。"]'
 ),
 (
@@ -40,6 +44,7 @@ INSERT OR IGNORE INTO recipes (
   '["暖胃","清淡"]',
   'howtocook',
   '清甜暖胃的家常汤。',
+  NULL,
   '["排骨焯水去血沫。","加水与姜片炖 30 分钟。","加入冬瓜块再炖至软烂，调味即可。"]'
 ),
 (
@@ -52,6 +57,7 @@ INSERT OR IGNORE INTO recipes (
   '["凉菜","快手"]',
   'howtocook',
   '清爽开胃的凉菜。',
+  NULL,
   '["黄瓜拍裂切段。","加入蒜末、生抽、醋、香油拌匀。"]'
 );
 

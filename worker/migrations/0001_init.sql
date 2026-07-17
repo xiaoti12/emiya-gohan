@@ -36,6 +36,7 @@ CREATE TABLE recipes (
   tags TEXT NOT NULL DEFAULT '[]',
   source TEXT NOT NULL DEFAULT 'custom',
   summary TEXT,
+  cover_image_url TEXT,
   steps_json TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

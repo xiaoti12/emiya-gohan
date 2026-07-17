@@ -88,6 +88,7 @@ const recipeColumns = `
   tags,
   source,
   summary,
+  cover_image_url,
   steps_json,
   updated_at
 `;
@@ -204,9 +205,10 @@ export const recipeQueries = {
       tags,
       source,
       summary,
+      cover_image_url,
       steps_json
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING ${recipeColumns}
   `,
   update: `
