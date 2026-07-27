@@ -9,7 +9,6 @@ import {
   loadStoredFamilyId,
   saveStoredFamily,
 } from "./familyStore";
-import { formatFamilyTitle } from "./familyName";
 import styles from "./FamilyGate.module.css";
 
 type FamilyGateProps = {
@@ -108,7 +107,7 @@ export function FamilyGate({ children }: FamilyGateProps) {
     return (
       <AppShell>
         <div className={styles.centered} aria-live="polite">
-          <PaperCard className={styles.loadingCard} tone="white" tilt="left">
+          <PaperCard className={`${styles.loadingCard} ${styles.tiltLeft}`} tone="white">
             <span className={styles.loadingMark} aria-hidden="true">饭</span>
             <p className={styles.eyebrow}>正在打开家庭厨房</p>
             <h1>看看今天吃什么</h1>
@@ -141,13 +140,10 @@ export function FamilyGate({ children }: FamilyGateProps) {
     );
   }
 
-  const titlePreview = formatFamilyTitle(displayName);
-
   return (
     <AppShell>
       <div className={styles.entry}>
         <header className={styles.hero}>
-          <span className={styles.heroBadge}>家</span>
           <p className={styles.eyebrow}>欢迎来到家庭厨房</p>
           <h1>先找到属于你的饭桌</h1>
           <p>创建一个新家庭，或用同样的家庭名称加入已有空间。</p>
@@ -158,35 +154,31 @@ export function FamilyGate({ children }: FamilyGateProps) {
         <div className={styles.modeGrid} aria-label="选择进入方式">
           <PaperCard
             as="button"
-            className={`${styles.modeCard} ${mode === "create" ? styles.activeCard : ""}`}
+            className={`${styles.modeCard} ${styles.tiltLeft} ${mode === "create" ? styles.activeCard : ""}`}
             tone="warm"
-            tilt="left"
             interactive
             type="button"
             aria-pressed={mode === "create"}
             onClick={() => switchMode("create")}
           >
-            <span className={styles.modeMark}>新</span>
             <strong>创建家庭</strong>
             <span>第一次使用，从这里开始</span>
           </PaperCard>
           <PaperCard
             as="button"
-            className={`${styles.modeCard} ${mode === "join" ? styles.activeCard : ""}`}
+            className={`${styles.modeCard} ${styles.tiltRight} ${mode === "join" ? styles.activeCard : ""}`}
             tone="green"
-            tilt="right"
             interactive
             type="button"
             aria-pressed={mode === "join"}
             onClick={() => switchMode("join")}
           >
-            <span className={styles.modeMark}>入</span>
             <strong>加入家庭</strong>
             <span>输入家人创建时的名称</span>
           </PaperCard>
         </div>
 
-        <PaperCard className={styles.formCard} tone="white" tilt="left">
+        <PaperCard className={`${styles.formCard} ${styles.tiltLeft}`} tone="white">
           <form onSubmit={submitFamily}>
             <div className={styles.field}>
               <label htmlFor="familyDisplayName">家庭名称</label>
@@ -197,12 +189,11 @@ export function FamilyGate({ children }: FamilyGateProps) {
                   setDisplayName(event.target.value);
                   setFormError("");
                 }}
-                placeholder="例如：小田、小田家"
+                placeholder="输入家庭名称"
                 autoComplete="off"
                 maxLength={30}
                 disabled={submitting}
               />
-              <small>首页会显示：{titlePreview}</small>
             </div>
             <p className={styles.safetyNote}>
               家庭名称就是加入凭证，请取一个家人记得住、也不容易被猜到的名称。
