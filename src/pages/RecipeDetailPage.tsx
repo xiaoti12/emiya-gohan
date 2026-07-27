@@ -117,20 +117,14 @@ export function RecipeDetailPage() {
         actionLabel={editLabel}
         onAction={handleEdit}
       />
-      <PaperCard className={styles.coverCard} tone="white" tilt="left">
-        <div
-          className={
-            recipe.coverImageUrl
-              ? styles.cover
-              : `${styles.cover} ${styles.coverEmpty}`
-          }
-        >
-          {recipe.coverImageUrl ? (
+      {recipe.coverImageUrl ? (
+        <PaperCard className={styles.coverCard} tone="white">
+          <div className={styles.cover}>
             <img src={recipe.coverImageUrl} alt={recipe.name} />
-          ) : null}
-        </div>
-      </PaperCard>
-      <PaperCard className={styles.metaCard} tone="warm" tilt="right">
+          </div>
+        </PaperCard>
+      ) : null}
+      <PaperCard className={styles.metaCard} tone="warm">
         <div className={styles.tags}>
           <span className={styles.tag}>{recipe.category}</span>
           <span className={styles.tag}>{formatRecipeSource(recipe)}</span>
@@ -147,7 +141,7 @@ export function RecipeDetailPage() {
         ) : null}
         {recipe.summary ? <p className={styles.summary}>{recipe.summary}</p> : null}
       </PaperCard>
-      <PaperCard className={styles.sectionCard} tone="green" tilt="left">
+      <PaperCard className={styles.sectionCard} tone="green">
         <h2>需要食材</h2>
         <ul className={styles.list}>
           {recipe.ingredients.map((item) => (
@@ -158,7 +152,7 @@ export function RecipeDetailPage() {
           ))}
         </ul>
       </PaperCard>
-      <PaperCard className={styles.sectionCard} tone="blue" tilt="right">
+      <PaperCard className={styles.sectionCard} tone="blue">
         <h2>步骤简述</h2>
         {recipe.steps.length > 0 ? (
           <ol className={styles.stepList}>

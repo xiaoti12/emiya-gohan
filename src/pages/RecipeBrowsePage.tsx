@@ -156,21 +156,24 @@ export function RecipeBrowsePage() {
                 tilt={index % 2 ? "right" : "left"}
                 interactive
               >
-                <div
-                  className={
-                    recipe.coverImageUrl
-                      ? styles.recipeCover
-                      : `${styles.recipeCover} ${styles.recipeCoverEmpty}`
-                  }
-                >
-                  {recipe.coverImageUrl ? (
+                {recipe.coverImageUrl ? (
+                  <div className={styles.recipeCover}>
                     <img
                       src={recipe.coverImageUrl}
                       alt={recipe.name}
                       loading="lazy"
                     />
-                  ) : null}
-                </div>
+                  </div>
+                ) : (
+                  <div className={`${styles.recipeCover} ${styles.recipeCoverPlaceholder}`}>
+                    <img
+                      src="/fork-and-knife.svg"
+                      alt=""
+                      aria-hidden="true"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
                 <div className={styles.recipeBody}>
                   <h2 className={styles.recipeName}>{recipe.name}</h2>
                   <div className={styles.recipeTags}>
