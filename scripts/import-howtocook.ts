@@ -6,9 +6,9 @@
  *     --repo-path ../HowToCook --limit 5 --concurrency 3
  *
  * 产出：
- *   - scripts/out/howtocook/recipes.json
- *   - scripts/out/howtocook/report.json
- *   - worker/seeds/recipes_howtocook.sql（非 --dry-run）
+ *   - scripts/out/recipes.json
+ *   - scripts/out/report.json
+ *   - scripts/out/recipes_howtocook.sql（非 --dry-run）
  *
  * 环境变量：
  *   OPENAI_API_KEY   必填（除非 --dry-run 且 --skip-ai，仅用于调试扫描）
@@ -84,6 +84,9 @@ const MAX_AMOUNT = 50;
 
 const GITHUB_RAW_BASE =
   "https://raw.githubusercontent.com/Anduin2017/HowToCook/master";
+// LFS 指针文件走 raw 时只回指针文本，真实字节需走 media 域名
+const GITHUB_MEDIA_BASE =
+  "https://media.githubusercontent.com/media/Anduin2017/HowToCook/master";
 
 type CliOptions = {
   repoPath: string;
@@ -141,8 +144,8 @@ function printHelp() {
   --concurrency N       AI 并发，默认 3
   --dry-run             只写 JSON/report，不写 SQL
   --upsert              SQL 使用 INSERT OR REPLACE（默认 INSERT OR IGNORE）
-  --out-dir <dir>       中间产物目录，默认 scripts/out/howtocook
-  --sql-path <file>     SQL 输出路径，默认 worker/seeds/recipes_howtocook.sql
+  --out-dir <dir>       中间产物目录，默认 scripts/out
+  --sql-path <file>     SQL 输出路径，默认 scripts/out/recipes_howtocook.sql
   --skip-ai             仅扫描文件与封面，不调 AI（调试用）
   --help                显示帮助
 `);
@@ -165,8 +168,8 @@ function parseArgs(argv: string[]): CliOptions {
     concurrency: 3,
     dryRun: false,
     upsert: false,
-    outDir: path.join(repoRoot, "scripts/out/howtocook"),
-    sqlPath: path.join(repoRoot, "worker/seeds/recipes_howtocook.sql"),
+    outDir: path.join(repoRoot, "scripts/out"),
+    sqlPath: path.join(repoRoot, "scripts/out/recipes_howtocook.sql"),
     skipAi: false,
   };
 
@@ -293,6 +296,22 @@ async function pathExists(target: string) {
   }
 }
 
+async function isLfsPointer(target: string): Promise<boolean> {
+  let handle;
+  try {
+    const { open } = await import("node:fs/promises");
+    handle = await open(target, "r");
+    const buffer = Buffer.alloc(512);
+    const { bytesRead } = await handle.read(buffer, 0, 512, 0);
+    const head = buffer.subarray(0, bytesRead).toString("utf8");
+    return /^version https:\/\/git-lfs\.github\.com\/spec\/v\d+\s*$/m.test(head);
+  } catch {
+    return false;
+  } finally {
+    await handle?.close();
+  }
+}
+
 async function walkMarkdownFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
   const files: string[] = [];
@@ -311,7 +330,22 @@ function toPosix(relativePath: string) {
   return relativePath.split(path.sep).join("/");
 }
 
-function resolveCoverImageUrl(
+function encodeRepoPath(relative: string) {
+  return relative
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
+function buildCoverUrl(relative: string, lfs: boolean) {
+  const encoded = encodeRepoPath(relative);
+  return lfs
+    ? `${GITHUB_MEDIA_BASE}/${encoded}`
+    : `${GITHUB_RAW_BASE}/${encoded}`;
+}
+
+// 返回相对仓库根的 POSIX 路径（不含 base）；调用方决定用 raw 还是 media。
+function findMdCoverRelative(
   absoluteMdPath: string,
   markdown: string,
   repoPath: string,
@@ -331,13 +365,19 @@ function resolveCoverImageUrl(
     const clean = mdImage.split("#")[0]?.split("?")[0] ?? mdImage;
     const absolute = path.resolve(dishDir, clean);
     const relative = toPosix(path.relative(repoPath, absolute));
-    if (!relative.startsWith("..")) {
-      return `${GITHUB_RAW_BASE}/${relative}`;
-    }
+    if (!relative.startsWith("..")) return relative;
   }
-
-  // 目录回退：优先与 md 同名图片，其次任意一张图片
   return null;
+}
+
+// 同步纯函数版本，仅用于 --skip-ai 等不读 FS 的场景占位；真实路径仍由 resolveCoverWithFs 决定。
+function resolveCoverImageUrl(
+  absoluteMdPath: string,
+  markdown: string,
+  repoPath: string,
+): string | null {
+  const relative = findMdCoverRelative(absoluteMdPath, markdown, repoPath);
+  return relative ? `${GITHUB_RAW_BASE}/${encodeRepoPath(relative)}` : null;
 }
 
 async function resolveCoverWithFs(
@@ -345,11 +385,13 @@ async function resolveCoverWithFs(
   markdown: string,
   repoPath: string,
 ): Promise<string | null> {
-  const fromMd = resolveCoverImageUrl(absoluteMdPath, markdown, repoPath);
-  if (fromMd) {
-    const relative = fromMd.slice(GITHUB_RAW_BASE.length + 1);
-    const absolute = path.join(repoPath, relative);
-    if (await pathExists(absolute)) return fromMd;
+  const fromMdRelative = findMdCoverRelative(absoluteMdPath, markdown, repoPath);
+  if (fromMdRelative) {
+    const absolute = path.join(repoPath, fromMdRelative);
+    if (await pathExists(absolute)) {
+      const lfs = await isLfsPointer(absolute);
+      return buildCoverUrl(fromMdRelative, lfs);
+    }
   }
 
   const dishDir = path.dirname(absoluteMdPath);
@@ -373,7 +415,8 @@ async function resolveCoverWithFs(
   const absolute = path.join(dishDir, preferred);
   const relative = toPosix(path.relative(repoPath, absolute));
   if (relative.startsWith("..")) return null;
-  return `${GITHUB_RAW_BASE}/${relative}`;
+  const lfs = await isLfsPointer(absolute);
+  return buildCoverUrl(relative, lfs);
 }
 
 async function collectCandidates(options: CliOptions): Promise<RecipeCandidate[]> {
@@ -742,6 +785,8 @@ async function main() {
       baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
     };
+    console.log(`AI base_url: ${env.baseUrl}`);
+    console.log(`AI model:    ${env.model}`);
 
     let done = 0;
     const outcomes = await mapPool(candidates, options.concurrency, async (candidate) => {
