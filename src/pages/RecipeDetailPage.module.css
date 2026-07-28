@@ -19,9 +19,9 @@
 
 .cover img {
   width: 100%;
-  height: 180px;
+  height: auto;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .tags {
