@@ -1,7 +1,7 @@
-import type { Recipe } from "../recipes/types";
+import type { RecipeListItem } from "../recipes/types";
 
 type RecommendationPanelProps = {
-  items: Recipe[];
+  items: RecipeListItem[];
 };
 
 export function RecommendationPanel({ items }: RecommendationPanelProps) {

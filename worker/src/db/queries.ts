@@ -256,6 +256,22 @@ export const recipeQueries = {
   `,
 } as const;
 
+export const recommendationQueries = {
+  listCandidateIds: `
+    ${effectiveRecipesCte}
+    SELECT r.id
+    FROM effective_recipes r
+    WHERE (? IS NULL OR lower(replace(r.category, ' ', '')) = ?)
+    ORDER BY r.id ASC
+  `,
+  listByIdsPrefix: `
+    SELECT ${recipeColumns}
+    FROM recipes
+    WHERE deleted_at IS NULL
+      AND id IN
+  `,
+} as const;
+
 const recipeRecordColumns = `
   id,
   family_id,

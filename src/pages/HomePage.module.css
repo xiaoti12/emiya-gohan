@@ -287,6 +287,12 @@
   transition: transform var(--transition-paper), box-shadow var(--transition-paper);
 }
 
+.primaryButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .chips {
   display: flex;
   gap: 9px;
@@ -357,6 +363,23 @@
   color: var(--color-muted);
   font-size: 12px;
   line-height: 1.35;
+}
+
+.loadingText {
+  margin: 18px 0 8px;
+  color: var(--color-muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.retryButton {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 16px;
+  color: #fffaf0;
+  font-weight: 950;
+  background: var(--color-orange);
+  box-shadow: 3px 3px 0 rgba(111, 62, 24, 0.18);
 }
 
 .tipCard h2 {

@@ -1,25 +1,28 @@
-import { mockRecipes } from "../recipes/mock";
-import type { Recipe } from "../recipes/types";
+import { apiFetch } from "../../lib/apiClient";
+import type { RecommendationQuery, RecommendationResult } from "./types";
 
-export async function getRecommendations(tag = "全部", limit = 3, seed = Date.now()) {
-  const recipes =
-    !tag || tag === "全部"
-      ? mockRecipes
-      : mockRecipes.filter(
-          (recipe) => recipe.category === tag || recipe.tags.includes(tag),
-        );
-  return shuffleBySeed(recipes, seed).slice(0, limit);
+function buildQuery(query: RecommendationQuery = {}) {
+  const params = new URLSearchParams();
+  const category = query.category?.trim();
+  if (category && category !== "全部") {
+    params.set("category", category);
+  }
+  if (query.limit != null) {
+    params.set("limit", String(query.limit));
+  }
+  if (query.seed != null) {
+    params.set("seed", String(query.seed));
+  }
+  const text = params.toString();
+  return text ? `?${text}` : "";
 }
 
-function shuffleBySeed(items: Recipe[], seed: number) {
-  const result = [...items];
-  let state = seed || 1;
-
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    state = (state * 9301 + 49297) % 233280;
-    const next = Math.floor((state / 233280) * (index + 1));
-    [result[index], result[next]] = [result[next], result[index]];
-  }
-
-  return result;
+export function getRecommendations(
+  query: RecommendationQuery = {},
+  signal?: AbortSignal,
+) {
+  return apiFetch<RecommendationResult>(
+    `/recommendations/v1${buildQuery(query)}`,
+    { signal },
+  );
 }

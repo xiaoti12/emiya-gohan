@@ -1,11 +1,11 @@
-import type { Recipe } from "../recipes/types";
+import type { RecipeListItem } from "../recipes/types";
 
 export type RecommendationQuery = {
-  tag?: string;
+  category?: string;
   limit?: number;
   seed?: number;
 };
 
 export type RecommendationResult = {
-  items: Recipe[];
+  items: RecipeListItem[];
 };

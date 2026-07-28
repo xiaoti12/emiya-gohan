@@ -23,7 +23,7 @@ export type RecipeDetail = RecipeListItem & {
   updatedAt: string;
 };
 
-/** 首页推荐 mock 使用的精简类型；真实菜谱请用 RecipeListItem / RecipeDetail */
+/** 历史精简类型，新代码优先用 RecipeListItem / RecipeDetail */
 export type Recipe = {
   id: string;
   name: string;
