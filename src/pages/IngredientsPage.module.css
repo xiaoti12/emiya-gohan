@@ -166,6 +166,14 @@
   box-shadow: 2px 3px 0 rgba(111, 62, 24, 0.14);
 }
 
+.actionIcon img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
 .addAction:nth-child(2) .actionIcon {
   background: var(--color-orange);
 }
@@ -462,6 +470,7 @@
 }
 
 .uploadBox {
+  width: 100%;
   display: grid;
   place-items: center;
   min-height: 168px;
@@ -470,21 +479,15 @@
   border-radius: 26px;
   text-align: center;
   background: #eaf5ff;
+  cursor: pointer;
 }
 
 .uploadIcon {
-  width: 54px;
-  height: 54px;
-  display: grid;
-  place-items: center;
+  width: 48px;
+  height: 48px;
+  display: block;
   margin: 0 auto 11px;
-  border-radius: 20px;
-  color: #fff;
-  font-size: 24px;
-  font-weight: 950;
-  background: #7aa2c7;
-  box-shadow: 3px 4px 0 rgba(111, 62, 24, 0.13);
-  transform: rotate(-4deg);
+  object-fit: contain;
 }
 
 .uploadBox strong,
@@ -532,4 +535,77 @@
   .ingredientList {
     grid-template-columns: 1fr;
   }
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.previewImage {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 220px;
+  margin: 10px auto 12px;
+  object-fit: contain;
+  border-radius: 18px;
+  box-shadow: 3px 4px 0 rgba(111, 62, 24, 0.1);
+  background: rgba(255, 253, 247, 0.9);
+}
+
+.uploadActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.secondaryButton {
+  width: 100%;
+  height: 52px;
+  border-radius: 19px;
+  color: #6f4b35;
+  font-weight: 950;
+  background: #ffe7ae;
+  box-shadow: 4px 5px 0 rgba(154, 99, 42, 0.14);
+}
+
+.secondaryButton:disabled {
+  opacity: 0.65;
+}
+
+.settingsLink {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 52px;
+  border-radius: 19px;
+  color: #fffaf0;
+  font-weight: 950;
+  text-decoration: none;
+  background: var(--color-orange);
+  box-shadow: 4px 5px 0 rgba(111, 62, 24, 0.16);
+}
+
+.reviewList {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.reviewCard {
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 247, 230, 0.9);
+  box-shadow: inset 2px 2px 6px rgba(112, 69, 32, 0.05);
+}
+
+.reviewDelete {
+  width: 100%;
+  height: 40px;
+  border: 0;
+  border-radius: 14px;
+  color: #a54536;
+  font-weight: 900;
+  background: rgba(255, 225, 220, 0.9);
 }
