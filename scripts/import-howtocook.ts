@@ -85,8 +85,10 @@ const MAX_AMOUNT = 50;
 const GITHUB_RAW_BASE =
   "https://raw.githubusercontent.com/Anduin2017/HowToCook/master";
 // LFS 指针文件走 raw 时只回指针文本，真实字节需走 media 域名
-const GITHUB_MEDIA_BASE =
-  "https://media.githubusercontent.com/media/Anduin2017/HowToCook/master";
+const GITHUB_MEDIA_HOST_PATH =
+  "media.githubusercontent.com/media/Anduin2017/HowToCook/master";
+// LFS 封面经 wsrv 代理，转 webp 并压缩，避免直连 GitHub media 在国内加载差
+const WSRV_BASE = "https://wsrv.nl";
 
 type CliOptions = {
   repoPath: string;
@@ -339,9 +341,11 @@ function encodeRepoPath(relative: string) {
 
 function buildCoverUrl(relative: string, lfs: boolean) {
   const encoded = encodeRepoPath(relative);
-  return lfs
-    ? `${GITHUB_MEDIA_BASE}/${encoded}`
-    : `${GITHUB_RAW_BASE}/${encoded}`;
+  if (!lfs) {
+    return `${GITHUB_RAW_BASE}/${encoded}`;
+  }
+  // url 参数省略 https://；路径段已 encode，整段 query 值不再二次编码
+  return `${WSRV_BASE}/?url=${GITHUB_MEDIA_HOST_PATH}/${encoded}&output=webp&q=80`;
 }
 
 // 返回相对仓库根的 POSIX 路径（不含 base）；调用方决定用 raw 还是 media。
