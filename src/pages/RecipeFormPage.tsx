@@ -525,7 +525,7 @@ export function RecipeFormPage() {
           </p>
         ) : null}
 
-        <PaperCard className={styles.section} tone="white" tilt="left">
+        <PaperCard className={styles.section} tone="white">
           <h2>基本信息</h2>
           <label className={styles.field}>
             <span>菜名</span>
@@ -579,7 +579,7 @@ export function RecipeFormPage() {
           </label>
         </PaperCard>
 
-        <PaperCard className={styles.section} tone="warm" tilt="right">
+        <PaperCard className={styles.section} tone="warm">
           <h2>标签（选填）</h2>
           <div className={styles.tagList}>
             {tags.map((tag) => (
@@ -608,7 +608,7 @@ export function RecipeFormPage() {
           </label>
         </PaperCard>
 
-        <PaperCard className={styles.section} tone="green" tilt="left">
+        <PaperCard className={styles.section} tone="green">
           <div className={styles.sectionHead}>
             <h2>食材</h2>
             <button
@@ -670,7 +670,7 @@ export function RecipeFormPage() {
           </div>
         </PaperCard>
 
-        <PaperCard className={styles.section} tone="blue" tilt="right">
+        <PaperCard className={styles.section} tone="blue">
           <div className={styles.sectionHead}>
             <h2>步骤（选填）</h2>
             <button

@@ -29,11 +29,11 @@ export function AiSettingsPage() {
   return (
     <AppShell overlaySlot={<Toast message={toast} />}>
       <TopBar title="AI 设置" subtitle="配置你自己的模型信息，聊天页会从本机读取。" />
-      <PaperCard className={styles.noticeCard} tone="warm" tilt="left">
+      <PaperCard className={styles.noticeCard} tone="warm">
         <h2>本机保存提示</h2>
         <p>API Key 只写入当前浏览器 localStorage，不会提交到后端。请不要在公用设备上保存长期有效的密钥。</p>
       </PaperCard>
-      <PaperCard className={styles.settingsCard} tone="white" tilt="right">
+      <PaperCard className={styles.settingsCard} tone="white">
         <h2>模型配置</h2>
         <form onSubmit={submit}>
           <div className={styles.field}>

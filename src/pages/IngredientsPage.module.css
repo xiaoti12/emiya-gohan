@@ -1,5 +1,4 @@
 .overviewCard,
-.addCard,
 .categoryCard {
   position: relative;
   z-index: 2;
@@ -11,32 +10,20 @@
 .overviewCard {
   padding: 16px;
   margin-bottom: 14px;
-  border-radius: var(--radius-xl) !important;
-  background: rgba(255, 253, 247, 0.92) !important;
-  transform: rotate(-0.6deg) !important;
-}
-
-.addCard {
-  padding: 14px;
-  margin-bottom: 15px;
-  border-radius: var(--radius-xl) !important;
-  background: #fff1cc !important;
-  transform: rotate(0.6deg) !important;
-  clip-path: polygon(2% 0, 100% 4%, 96% 100%, 0 95%) !important;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 253, 247, 0.92);
 }
 
 .categoryCard {
   padding: 15px;
   margin-bottom: 0;
-  border-radius: var(--radius-xl) !important;
-  background: rgba(255, 253, 247, 0.94) !important;
-  transform: none !important;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 253, 247, 0.94);
   transform-style: preserve-3d;
-  clip-path: none !important;
 }
 
 .overviewCard::after,
-.addCard::after {
+.categoryCard::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -48,7 +35,7 @@
 }
 
 .overviewCard > *,
-.addCard > * {
+.categoryCard > * {
   position: relative;
   z-index: 1;
 }

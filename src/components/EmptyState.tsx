@@ -9,7 +9,7 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <PaperCard className={styles.empty} tone="white" tilt="left">
+    <PaperCard className={styles.empty} tone="white">
       <span className={styles.mark} aria-hidden="true">
         空
       </span>

@@ -249,11 +249,9 @@
   z-index: 1;
   margin-top: 17px;
   padding: 18px;
-  border-radius: 28px !important;
-  background: rgba(247, 223, 173, 0.78) !important;
-  box-shadow: var(--shadow-sm) !important;
-  transform: rotate(-0.6deg) !important;
-  clip-path: polygon(2% 0, 100% 6%, 96% 98%, 0 92%) !important;
+  border-radius: var(--radius-lg);
+  background: rgba(247, 223, 173, 0.82);
+  box-shadow: var(--shadow-md);
 }
 
 .panelHead {

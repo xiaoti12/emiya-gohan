@@ -210,7 +210,7 @@ export function IngredientsPage() {
       const cardClass = group.category === "meat" ? styles.meatCard : group.category === "other" ? styles.otherCard : styles.vegetableCard;
 
       return (
-      <PaperCard className={`${styles.categoryCard} ${cardClass}`} key={group.category} tone={cardTone} tilt={group.category === "meat" ? "right" : "left"}>
+      <PaperCard className={`${styles.categoryCard} ${cardClass}`} key={group.category} tone={cardTone}>
         <div className={styles.categoryHead}>
           <h2 className={styles.categoryName}>{ingredientCategoryLabels[group.category]}</h2>
           <span className={styles.categoryCount}>{group.items.length} 样</span>

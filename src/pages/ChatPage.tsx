@@ -29,7 +29,7 @@ export function ChatPage() {
     <AppShell overlaySlot={<Toast message={toast} />}>
       <TopBar title="问问厨房助手" subtitle="聊天页先作为 AI 能力入口壳，保存前仍需要用户确认。" actionText="设" actionLabel="AI 设置" actionTo="/ai-settings" />
 
-      <PaperCard className={styles.chatCard} tone="white" tilt="left">
+      <PaperCard className={styles.chatCard} tone="white">
         <h2>{aiReady ? "AI 配置已就绪" : "先配置你的模型 Key"}</h2>
         <p>API Key 只保存在本机浏览器。Phase1 暂不直连模型，后续在这里完成建议菜品和自然语言录入。</p>
         {!aiReady ? <Link className={styles.settingsButton} to="/ai-settings">去设置</Link> : null}
@@ -42,7 +42,7 @@ export function ChatPage() {
         </div>
       </PaperCard>
 
-      <PaperCard className={styles.messageCard} tone="blue" tilt="right">
+      <PaperCard className={styles.messageCard} tone="blue">
         <h2>对话预览</h2>
         <div className={styles.messageBubble}>
           <strong>厨房助手</strong>
@@ -50,7 +50,7 @@ export function ChatPage() {
         </div>
       </PaperCard>
 
-      <PaperCard className={styles.inputCard} tone="white" tilt="left">
+      <PaperCard className={styles.inputCard} tone="white">
         <form className={styles.inputRow} onSubmit={submit}>
           <input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="输入想问的菜..." />
           <button className={styles.sendButton} type="submit">发</button>
