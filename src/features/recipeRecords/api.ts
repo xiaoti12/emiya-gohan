@@ -1,17 +1,26 @@
-import { mockRecipeRecords } from "./mock";
-import type { CreateRecipeRecordInput, RecipeRecord } from "./types";
+import { apiFetch } from "../../lib/apiClient";
+import type {
+  CreateRecipeRecordInput,
+  DeleteRecipeRecordResult,
+  RecipeRecord,
+  RecipeRecordType,
+} from "./types";
 
-let localRecords = [...mockRecipeRecords];
-
-export async function listRecipeRecords() {
-  return localRecords;
+export function listRecipeRecords(recordType?: RecipeRecordType, signal?: AbortSignal) {
+  const query = recordType ? `?recordType=${recordType}` : "";
+  return apiFetch<RecipeRecord[]>(`/recipe-records/v1${query}`, { signal });
 }
 
-export async function createRecipeRecord(input: CreateRecipeRecordInput) {
-  const record: RecipeRecord = {
-    id: `record-local-${crypto.randomUUID()}`,
-    ...input,
-  };
-  localRecords = [record, ...localRecords];
-  return record;
+export function createRecipeRecord(input: CreateRecipeRecordInput) {
+  return apiFetch<RecipeRecord>("/recipe-records/v1", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteRecipeRecord(id: string) {
+  return apiFetch<DeleteRecipeRecordResult>(
+    `/recipe-records/v1/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+  );
 }

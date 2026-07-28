@@ -9,13 +9,10 @@ import { Toast } from "../components/Toast";
 import { getRecommendations } from "../features/recommendations/api";
 import { recommendationTags } from "../features/recipes/constants";
 import type { Recipe } from "../features/recipes/types";
-import { createRecipeRecord } from "../features/recipeRecords/api";
+import { PlanSheet } from "../features/recipeRecords/PlanSheet";
 import { formatFamilyTitle } from "../features/family/familyName";
 import { loadStoredFamily } from "../features/family/familyStore";
-import { nearestWeekendISO, todayISO, tomorrowISO } from "../lib/date";
 import styles from "./HomePage.module.css";
-
-type PlanDateOption = "今天" | "明天" | "周末";
 
 const quickEntries = [
   { title: "菜谱\n浏览", desc: "搜索家常菜、汤羹、主食", icon: "谱", to: "/recipes", tone: "white" },
@@ -23,12 +20,6 @@ const quickEntries = [
   { title: "要做\n什么", desc: "把想吃的先记下来", icon: "做", tone: "green" },
   { title: "食材\n管理", desc: "快速维护冰箱库存", icon: "材", to: "/ingredients", tone: "blue" },
 ] as const;
-
-const dateMap: Record<PlanDateOption, string> = {
-  今天: todayISO(),
-  明天: tomorrowISO(),
-  周末: nearestWeekendISO(),
-};
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -38,8 +29,6 @@ export function HomePage() {
   const [recommendations, setRecommendations] = useState<Recipe[]>([]);
   const [seed, setSeed] = useState(Date.now());
   const [planOpen, setPlanOpen] = useState(false);
-  const [dishName, setDishName] = useState("");
-  const [planDate, setPlanDate] = useState<PlanDateOption>("今天");
   const [toast, setToast] = useState("");
 
   useEffect(() => {
@@ -55,20 +44,6 @@ export function HomePage() {
 
   function toggleRecommend() {
     setRecommendOpen((open) => !open);
-  }
-
-  async function submitPlan(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const finalDishName = dishName.trim() || "一道好菜";
-    await createRecipeRecord({
-      dishName: finalDishName,
-      recordType: "planned",
-      planDate: dateMap[planDate],
-    });
-    setPlanOpen(false);
-    setToast(`已添加：${finalDishName}（${planDate}）`);
-    setDishName("");
-    setPlanDate("今天");
   }
 
   return (
@@ -114,38 +89,11 @@ export function HomePage() {
               <EmptyState title="这个标签暂时没有菜谱" description="换个标签试试，或先去菜谱库添加一道新菜。" />
             )}
           </BottomSheet>
-          <BottomSheet title="要做什么" open={planOpen} onClose={() => setPlanOpen(false)} variant="edge">
-            <form onSubmit={submitPlan}>
-              <div className={styles.field}>
-                <label htmlFor="dishInput">菜品</label>
-                <input
-                  id="dishInput"
-                  value={dishName}
-                  onChange={(event) => setDishName(event.target.value)}
-                  placeholder="例如：番茄炒蛋、冬瓜排骨汤"
-                  autoComplete="off"
-                />
-              </div>
-              <div className={styles.field}>
-                <label>日期</label>
-                <div className={styles.dateRow} role="group" aria-label="快捷日期">
-                  {(["今天", "明天", "周末"] as PlanDateOption[]).map((item) => (
-                    <button
-                      key={item}
-                      className={`${styles.dateButton} ${planDate === item ? styles.dateButtonActive : ""}`}
-                      type="button"
-                      onClick={() => setPlanDate(item)}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <button className={styles.submitButton} type="submit">
-                添加到计划
-              </button>
-            </form>
-          </BottomSheet>
+          <PlanSheet
+            open={planOpen}
+            onClose={() => setPlanOpen(false)}
+            onToast={setToast}
+          />
           <Toast message={toast} bottom="high" />
         </>
       }

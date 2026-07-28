@@ -255,3 +255,68 @@ export const recipeQueries = {
     VALUES (?, ?, ?, ?, ?)
   `,
 } as const;
+
+const recipeRecordColumns = `
+  id,
+  family_id,
+  recipe_id,
+  dish_name,
+  record_type,
+  planned_date,
+  cooked_at,
+  note,
+  created_at,
+  updated_at
+`;
+
+export const recipeRecordQueries = {
+  listByFamilyAndType: `
+    SELECT ${recipeRecordColumns}
+    FROM recipe_records
+    WHERE family_id = ? AND record_type = ? AND deleted_at IS NULL
+    ORDER BY COALESCE(planned_date, '9999-12-31') ASC, created_at ASC, rowid ASC
+  `,
+  findById: `
+    SELECT ${recipeRecordColumns}
+    FROM recipe_records
+    WHERE id = ? AND family_id = ? AND deleted_at IS NULL
+  `,
+  recipeVisibleToFamily: `
+    WITH effective_recipes AS (
+      SELECT id FROM recipes WHERE family_id = ? AND deleted_at IS NULL
+      UNION ALL
+      SELECT base.id
+      FROM recipes base
+      WHERE base.family_id IS NULL
+        AND base.deleted_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM recipes version
+          WHERE version.family_id = ?
+            AND version.parent_recipe_id = base.id
+            AND version.deleted_at IS NULL
+        )
+    )
+    SELECT 1 FROM effective_recipes WHERE id = ? LIMIT 1
+  `,
+  create: `
+    INSERT INTO recipe_records (
+      id,
+      family_id,
+      recipe_id,
+      dish_name,
+      record_type,
+      planned_date,
+      cooked_at,
+      note
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    RETURNING ${recipeRecordColumns}
+  `,
+  remove: `
+    UPDATE recipe_records
+    SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND family_id = ? AND deleted_at IS NULL
+    RETURNING id
+  `,
+} as const;

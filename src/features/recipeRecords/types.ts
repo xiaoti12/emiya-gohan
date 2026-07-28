@@ -2,11 +2,24 @@ export type RecipeRecordType = "want_to_cook" | "planned" | "cooked";
 
 export type RecipeRecord = {
   id: string;
-  recipeId?: string;
+  recipeId: string | null;
   dishName: string;
   recordType: RecipeRecordType;
-  planDate?: string;
-  note?: string;
+  plannedDate: string | null;
+  cookedAt: string | null;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export type CreateRecipeRecordInput = Omit<RecipeRecord, "id">;
+export type CreateRecipeRecordInput = {
+  dishName: string;
+  recordType: RecipeRecordType;
+  recipeId?: string | null;
+  plannedDate?: string | null;
+  note?: string | null;
+};
+
+export type DeleteRecipeRecordResult = {
+  deletedId: string;
+};
