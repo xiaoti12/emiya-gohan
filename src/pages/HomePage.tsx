@@ -16,10 +16,32 @@ import { getErrorMessage } from "../lib/errors";
 import styles from "./HomePage.module.css";
 
 const quickEntries = [
-  { title: "菜谱\n浏览", desc: "搜索家常菜、汤羹、主食", icon: "谱", to: "/recipes", tone: "white" },
-  { title: "推荐\n菜品", desc: "随机来点今晚灵感", icon: "荐", tone: "warm" },
-  { title: "要做\n什么", desc: "把想吃的先记下来", icon: "做", tone: "green" },
-  { title: "食材\n管理", desc: "快速维护冰箱库存", icon: "材", to: "/ingredients", tone: "blue" },
+  {
+    title: "菜谱浏览",
+    desc: "搜索家常菜、汤羹、主食",
+    iconSrc: "/home_card/book.svg",
+    to: "/recipes",
+    tone: "white",
+  },
+  {
+    title: "推荐菜品",
+    desc: "随机来点今晚灵感",
+    iconSrc: "/home_card/dice.svg",
+    tone: "warm",
+  },
+  {
+    title: "要做什么",
+    desc: "把想吃的先记下来",
+    iconSrc: "/home_card/list.svg",
+    tone: "green",
+  },
+  {
+    title: "食材管理",
+    desc: "快速维护冰箱库存",
+    iconSrc: "/home_card/basket.svg",
+    to: "/ingredients",
+    tone: "blue",
+  },
 ] as const;
 
 export function HomePage() {
@@ -199,16 +221,27 @@ export function HomePage() {
                 tilt={entry.tone === "warm" || entry.tone === "green" ? "right" : "left"}
                 interactive
                 type="button"
-                onClick={entry.title.startsWith("推荐") ? toggleRecommend : entry.title.startsWith("要做") ? () => setPlanOpen(true) : undefined}
+                onClick={
+                  entry.title === "推荐菜品"
+                    ? toggleRecommend
+                    : entry.title === "要做什么"
+                      ? () => setPlanOpen(true)
+                      : undefined
+                }
               >
-                <span className={styles.quickIcon}>{entry.icon}</span>
-                <span className={styles.quickTitle}>{entry.title.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</span>
+                <span className={styles.quickIcon} aria-hidden="true">
+                  <span
+                    className={styles.quickIconGlyph}
+                    style={{ maskImage: `url(${entry.iconSrc})`, WebkitMaskImage: `url(${entry.iconSrc})` }}
+                  />
+                </span>
+                <span className={styles.quickTitle}>{entry.title}</span>
                 <span className={styles.quickDesc}>{entry.desc}</span>
               </PaperCard>
             );
 
             return "to" in entry && entry.to ? (
-              <Link key={entry.title} to={entry.to} aria-label={entry.title.replace("\n", "")}>
+              <Link key={entry.title} to={entry.to} aria-label={entry.title}>
                 {card}
               </Link>
             ) : (

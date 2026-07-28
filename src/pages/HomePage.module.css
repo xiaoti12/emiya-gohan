@@ -187,32 +187,59 @@
 }
 
 .quickIcon {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   display: grid;
   place-items: center;
-  margin-bottom: 16px;
-  border-radius: 16px;
-  color: #7d481d;
-  font-size: 22px;
-  font-weight: 950;
-  background: rgba(255, 255, 255, 0.52);
+  margin-bottom: 14px;
+  border-radius: 18px;
+  color: #8b5a2b;
+  background: rgba(255, 255, 255, 0.58);
   box-shadow: 3px 4px 0 rgba(129, 80, 35, 0.12);
+}
+
+.quickIconGlyph {
+  width: 34px;
+  height: 34px;
+  display: block;
+  background-color: currentColor;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.quickGrid > :nth-child(1) .quickIcon {
+  color: #8b5a2b;
+}
+
+.quickGrid > :nth-child(2) .quickIcon {
+  color: #c47a1a;
+}
+
+.quickGrid > :nth-child(3) .quickIcon {
+  color: #3f8f5b;
+}
+
+.quickGrid > :nth-child(4) .quickIcon {
+  color: #3d7eb8;
 }
 
 .quickTitle {
   display: block;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 950;
-  line-height: 1.12;
+  line-height: 1.15;
   letter-spacing: -0.03em;
 }
 
 .quickDesc {
   display: block;
-  margin-top: 7px;
+  margin-top: 8px;
   color: var(--color-muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -522,7 +549,28 @@
   }
 
   .quickCard {
-    min-height: 124px;
+    min-height: 128px;
     padding: 15px;
+  }
+
+  .quickIcon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+  }
+
+  .quickIconGlyph {
+    width: 30px;
+    height: 30px;
+  }
+
+  .quickTitle {
+    font-size: 20px;
+  }
+
+  .quickDesc {
+    margin-top: 6px;
+    font-size: 12px;
   }
 }
