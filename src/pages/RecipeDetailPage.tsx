@@ -9,6 +9,7 @@ import {
   formatRecipeSource,
   type RecipeDetail,
 } from "../features/recipes/types";
+import { withCoverImageParams } from "../lib/coverImage";
 import { ApiError, getErrorMessage } from "../lib/errors";
 import styles from "./RecipeDetailPage.module.css";
 
@@ -120,7 +121,13 @@ export function RecipeDetailPage() {
       {recipe.coverImageUrl ? (
         <PaperCard className={styles.coverCard} tone="white">
           <div className={styles.cover}>
-            <img src={recipe.coverImageUrl} alt={recipe.name} />
+            <img
+              src={
+                withCoverImageParams(recipe.coverImageUrl, { q: 80 }) ??
+                recipe.coverImageUrl
+              }
+              alt={recipe.name}
+            />
           </div>
         </PaperCard>
       ) : null}

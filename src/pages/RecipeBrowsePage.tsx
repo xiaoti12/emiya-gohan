@@ -14,6 +14,7 @@ import {
   formatRecipeSource,
   type RecipeListItem,
 } from "../features/recipes/types";
+import { withCoverImageParams } from "../lib/coverImage";
 import { getErrorMessage } from "../lib/errors";
 import styles from "./RecipeBrowsePage.module.css";
 
@@ -159,7 +160,10 @@ export function RecipeBrowsePage() {
                 {recipe.coverImageUrl ? (
                   <div className={styles.recipeCover}>
                     <img
-                      src={recipe.coverImageUrl}
+                      src={
+                        withCoverImageParams(recipe.coverImageUrl, { q: 60 }) ??
+                        recipe.coverImageUrl
+                      }
                       alt={recipe.name}
                       loading="lazy"
                     />

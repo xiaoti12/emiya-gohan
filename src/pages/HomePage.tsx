@@ -16,6 +16,7 @@ import type { RecipeListItem } from "../features/recipes/types";
 import { PlanSheet } from "../features/recipeRecords/PlanSheet";
 import { formatFamilyTitleParts } from "../features/family/familyName";
 import { loadStoredFamily } from "../features/family/familyStore";
+import { withCoverImageParams } from "../lib/coverImage";
 import { getErrorMessage } from "../lib/errors";
 import styles from "./HomePage.module.css";
 
@@ -142,28 +143,47 @@ export function HomePage() {
 
     return (
       <div className={styles.dishList}>
-        {recommendations.map((recipe) => (
-          <Link
-            key={recipe.id}
-            className={styles.dishCard}
-            to={`/recipes/${recipe.id}`}
-            onClick={() => setRecommendOpen(false)}
-          >
-            <span className={styles.dishThumb} aria-hidden="true">
-              {recipe.name.slice(0, 1)}
-            </span>
-            <span>
-              <h3 className={styles.dishName}>{recipe.name}</h3>
-              <p className={styles.dishMeta}>
-                {recipe.ingredients
-                  .map((item) => item.name)
-                  .filter(Boolean)
-                  .slice(0, 3)
-                  .join(" · ") || recipe.summary}
-              </p>
-            </span>
-          </Link>
-        ))}
+        {recommendations.map((recipe) => {
+          const coverSrc = withCoverImageParams(recipe.coverImageUrl, {
+            q: 60,
+            w: 300,
+            h: 300,
+            fit: "cover",
+          });
+          return (
+            <Link
+              key={recipe.id}
+              className={styles.dishCard}
+              to={`/recipes/${recipe.id}`}
+              onClick={() => setRecommendOpen(false)}
+            >
+              <span
+                className={
+                  coverSrc
+                    ? styles.dishThumb
+                    : `${styles.dishThumb} ${styles.dishThumbPlaceholder}`
+                }
+                aria-hidden="true"
+              >
+                <img
+                  src={coverSrc ?? "/fork-and-knife.svg"}
+                  alt=""
+                  loading="lazy"
+                />
+              </span>
+              <span>
+                <h3 className={styles.dishName}>{recipe.name}</h3>
+                <p className={styles.dishMeta}>
+                  {recipe.ingredients
+                    .map((item) => item.name)
+                    .filter(Boolean)
+                    .slice(0, 3)
+                    .join(" · ") || recipe.summary}
+                </p>
+              </span>
+            </Link>
+          );
+        })}
       </div>
     );
   }

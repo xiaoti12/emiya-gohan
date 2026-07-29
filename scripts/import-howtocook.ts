@@ -344,8 +344,9 @@ function buildCoverUrl(relative: string, lfs: boolean) {
   if (!lfs) {
     return `${GITHUB_RAW_BASE}/${encoded}`;
   }
+  // 入库只带 output=webp；质量/尺寸由前端按场景拼接
   // url 参数省略 https://；路径段已 encode，整段 query 值不再二次编码
-  return `${WSRV_BASE}/?url=${GITHUB_MEDIA_HOST_PATH}/${encoded}&output=webp&q=80`;
+  return `${WSRV_BASE}/?url=${GITHUB_MEDIA_HOST_PATH}/${encoded}&output=webp`;
 }
 
 // 返回相对仓库根的 POSIX 路径（不含 base）；调用方决定用 raw 还是 media。
