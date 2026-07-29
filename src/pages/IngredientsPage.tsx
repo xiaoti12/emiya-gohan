@@ -19,6 +19,7 @@ import {
   ingredientCategoryLabels,
   ingredientCategoryOrder,
 } from "../features/ingredients/constants";
+import { getIngredientMark } from "../features/ingredients/ingredientEmoji";
 import type { Ingredient, IngredientCategory } from "../features/ingredients/types";
 import { formatDisplayDate, todayISO } from "../lib/date";
 import { getErrorMessage } from "../lib/errors";
@@ -640,7 +641,7 @@ export function IngredientsPage() {
                 <div className={styles.ingredientRow} key={item.id}>
                   <div className={styles.ingredientMain}>
                     <span className={styles.foodMark} aria-hidden="true">
-                      {item.name.slice(0, 1)}
+                      {getIngredientMark(item.name)}
                     </span>
                     <span className={styles.foodCopy}>
                       <span className={styles.foodName}>{item.name}</span>

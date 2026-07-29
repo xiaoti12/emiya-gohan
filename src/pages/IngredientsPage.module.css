@@ -295,8 +295,9 @@
   place-items: center;
   border-radius: 15px;
   color: #fff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 950;
+  line-height: 1;
   background: var(--color-leaf);
   box-shadow: 2px 3px 0 rgba(111, 62, 24, 0.12);
   transform: rotate(-3deg);
