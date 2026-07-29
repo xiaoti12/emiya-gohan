@@ -101,6 +101,8 @@ type CliOptions = {
   outDir: string;
   sqlPath: string;
   skipAi: boolean;
+  /** 默认 false：请求体 thinking.type=disabled；--enable-thinking 时 type=enabled + reasoning_effort */
+  enableThinking: boolean;
 };
 
 type RecipeCandidate = {
@@ -149,6 +151,7 @@ function printHelp() {
   --out-dir <dir>       中间产物目录，默认 scripts/out
   --sql-path <file>     SQL 输出路径，默认 scripts/out/recipes_howtocook.sql
   --skip-ai             仅扫描文件与封面，不调 AI（调试用）
+  --enable-thinking     开启思考（thinking.type=enabled + reasoning_effort=high；默认关闭）
   --help                显示帮助
 `);
 }
@@ -173,6 +176,7 @@ function parseArgs(argv: string[]): CliOptions {
     outDir: path.join(repoRoot, "scripts/out"),
     sqlPath: path.join(repoRoot, "scripts/out/recipes_howtocook.sql"),
     skipAi: false,
+    enableThinking: false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -220,6 +224,9 @@ function parseArgs(argv: string[]): CliOptions {
         break;
       case "--skip-ai":
         options.skipAi = true;
+        break;
+      case "--enable-thinking":
+        options.enableThinking = true;
         break;
       default:
         throw new Error(`未知参数: ${arg}`);
@@ -479,10 +486,13 @@ function buildSystemPrompt() {
    - soup → 汤
    - 其他 → 其他
 3. aquatic 的 tags 必须包含「水产」。
-4. ingredients 只要主料；丢弃：
-   - 标注可选的原料
-   - 厨具（锅/铲/碗/刀/砧板/筷子等）
-   - 常见调味料（盐/糖/油/食用油/生抽/老抽/料酒/醋/淀粉/胡椒/味精/鸡精/蚝油/香油/豆瓣酱/酱油/葱姜蒜若仅作调味可丢；若是主料如葱油饼的葱则保留）
+4. ingredients 只收「主料/主食材」，严禁把调味料、香辛料、辅料当 ingredients。默认一律丢弃：
+   - 标注可选 / 配菜可选 / 佐料 的原料
+   - 厨具与容器（锅/铲/碗/刀/砧板/筷子/锡纸等）
+   - 液体/粉末调味：盐、糖、冰糖、味精、鸡精、胡椒粉、花椒粉、五香粉、十三香、淀粉、生粉、面粉（作勾芡/裹粉时）、料酒、黄酒、醋、陈醋、香醋、生抽、老抽、酱油、蚝油、香油/芝麻油、食用油/色拉油/花生油/菜籽油/橄榄油、番茄酱、豆瓣酱、甜面酱、黄豆酱、耗油等同义写法
+   - 香辛/调味蔬菜（即使用量大也丢）：葱、小葱、香葱、姜、生姜、蒜、大蒜、蒜瓣、蒜末、蒜蓉、辣椒、干辣椒、小米辣、朝天椒、青椒（仅作调味时）、花椒、八角、桂皮、香叶、草果、豆蔻、丁香、香菜、芹菜叶、胡椒
+   - 判定原则：菜名主体食材才保留（如「番茄炒蛋」保留番茄与蛋，「蒜蓉西兰花」只保留西兰花，「小米辣炒牛肉」只保留牛肉）。若某物主要起调味/增香/去腥作用，即使原文写在「主料」区也丢弃。
+   - 极少数例外：仅当该物就是菜名核心且不可替代的主食材时才保留（如「葱油饼」的葱、「蒜苗回锅肉」的蒜苗、「青椒肉丝」的青椒）。拿不准时优先丢弃，不要凑数。
 5. amount 按约 1 人份给出固定文本（如 200g、2 个）；无法确定时合理估算，再不行用「适量」。
 6. steps 把操作区扁平为有序字符串数组，保留可操作性，去掉无用层级标题。
 7. summary 基于导语改写成简短家常介绍。
@@ -638,10 +648,36 @@ function validateAiRecipe(value: unknown, folder: string): AiRecipe {
   return { name, category, tags, summary, ingredients, steps };
 }
 
+/**
+ * DeepSeek 兼容接口的思考开关（OpenAI SDK 对应 extra_body）：
+ * - 关闭: thinking.type = "disabled"
+ * - 开启: thinking.type = "enabled" + reasoning_effort
+ *
+ * 对应 Python 示例：
+ *   reasoning_effort="high",
+ *   extra_body={"thinking": {"type": "enabled"}}
+ */
+function buildThinkingParams(enableThinking: boolean): Record<string, unknown> {
+  if (!enableThinking) {
+    return {
+      thinking: { type: "disabled" },
+    };
+  }
+  return {
+    reasoning_effort: "high",
+    thinking: { type: "enabled" },
+  };
+}
+
 async function callOpenAi(
   candidate: RecipeCandidate,
   markdown: string,
-  env: { apiKey: string; baseUrl: string; model: string },
+  env: {
+    apiKey: string;
+    baseUrl: string;
+    model: string;
+    enableThinking: boolean;
+  },
 ): Promise<AiRecipe> {
   const url = `${env.baseUrl.replace(/\/$/, "")}/chat/completions`;
   const response = await fetch(url, {
@@ -654,6 +690,7 @@ async function callOpenAi(
       model: env.model,
       temperature: 0.2,
       response_format: { type: "json_object" },
+      ...buildThinkingParams(env.enableThinking),
       messages: [
         { role: "system", content: buildSystemPrompt() },
         { role: "user", content: buildUserPrompt(candidate, markdown) },
@@ -789,9 +826,18 @@ async function main() {
       apiKey,
       baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      enableThinking: options.enableThinking,
     };
     console.log(`AI base_url: ${env.baseUrl}`);
     console.log(`AI model:    ${env.model}`);
+    console.log(`AI concurrency: ${options.concurrency}`);
+    console.log(
+      `AI thinking: ${
+        options.enableThinking
+          ? "开启 (thinking=enabled, reasoning_effort=high)"
+          : "关闭 (thinking=disabled)"
+      }`,
+    );
 
     let done = 0;
     const outcomes = await mapPool(candidates, options.concurrency, async (candidate) => {
