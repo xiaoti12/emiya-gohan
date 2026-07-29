@@ -262,6 +262,21 @@ export const recommendationQueries = {
     SELECT r.id
     FROM effective_recipes r
     WHERE (? IS NULL OR lower(replace(r.category, ' ', '')) = ?)
+      AND (
+        ? IS NULL
+        OR NOT EXISTS (
+          SELECT 1
+          FROM recipe_records rr
+          WHERE rr.family_id = ?
+            AND rr.record_type = 'cooked'
+            AND rr.deleted_at IS NULL
+            AND (
+              rr.recipe_id = r.id
+              OR rr.recipe_id = r.parent_recipe_id
+            )
+            AND COALESCE(rr.cooked_at, date(rr.created_at)) >= ?
+        )
+      )
     ORDER BY r.id ASC
   `,
   listByIdsPrefix: `
@@ -292,6 +307,12 @@ export const recipeRecordQueries = {
     WHERE family_id = ? AND record_type = ? AND deleted_at IS NULL
     ORDER BY COALESCE(planned_date, '9999-12-31') ASC, created_at ASC, rowid ASC
   `,
+  listCookedByFamily: `
+    SELECT ${recipeRecordColumns}
+    FROM recipe_records
+    WHERE family_id = ? AND record_type = 'cooked' AND deleted_at IS NULL
+    ORDER BY COALESCE(cooked_at, created_at) DESC, rowid DESC
+  `,
   findById: `
     SELECT ${recipeRecordColumns}
     FROM recipe_records
@@ -314,6 +335,14 @@ export const recipeRecordQueries = {
         )
     )
     SELECT 1 FROM effective_recipes WHERE id = ? LIMIT 1
+  `,
+  findFamilyVersionIdByParent: `
+    SELECT id
+    FROM recipes
+    WHERE family_id = ?
+      AND parent_recipe_id = ?
+      AND deleted_at IS NULL
+    LIMIT 1
   `,
   create: `
     INSERT INTO recipe_records (

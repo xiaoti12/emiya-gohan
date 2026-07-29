@@ -75,6 +75,23 @@ function validateSeed(value: string | null) {
   return seed;
 }
 
+function validateExcludeSince(value: string | null) {
+  if (value === null || value === "") return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new HttpError(400, "INVALID_INPUT", "excludeSince 必须是 YYYY-MM-DD");
+  }
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    throw new HttpError(400, "INVALID_INPUT", "excludeSince 不是有效日期");
+  }
+  return value;
+}
+
 function shuffleBySeed<T>(items: T[], seed: number) {
   const result = [...items];
   let state = Math.abs(Math.trunc(seed)) || 1;
@@ -142,9 +159,18 @@ export async function getRecommendations(env: Env, familyId: string, url: URL) {
   const limit = validateLimit(url.searchParams.get("limit"));
   const category = validateCategory(url.searchParams.get("category"));
   const seed = validateSeed(url.searchParams.get("seed"));
+  const excludeSince = validateExcludeSince(url.searchParams.get("excludeSince"));
 
   const candidates = await env.DB.prepare(recommendationQueries.listCandidateIds)
-    .bind(familyId, familyId, category, category)
+    .bind(
+      familyId,
+      familyId,
+      category,
+      category,
+      excludeSince,
+      familyId,
+      excludeSince,
+    )
     .all<{ id: string }>();
 
   const selectedIds = shuffleBySeed(

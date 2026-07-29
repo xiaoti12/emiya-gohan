@@ -3,10 +3,18 @@
   gap: 16px;
 }
 
+.listHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
 .chips {
   display: flex;
+  flex: 1;
+  min-width: 0;
   gap: 9px;
-  margin-bottom: 6px;
   padding-bottom: 4px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -14,6 +22,26 @@
 
 .chips::-webkit-scrollbar {
   display: none;
+}
+
+.historyLink {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 999px;
+  color: #fff8ed;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  background: var(--color-orange);
+  box-shadow: 2px 3px 0 rgba(111, 62, 24, 0.14);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.historyLink:active {
+  transform: translate(2px, 2px) scale(0.985);
+  box-shadow: 2px 2px 8px rgba(86, 54, 26, 0.12);
 }
 
 .list {
@@ -86,23 +114,47 @@
   color: #b08a6a;
 }
 
+.itemActions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doneButton,
 .deleteButton {
   flex: 0 0 auto;
   width: 34px;
   height: 34px;
   display: grid;
   place-items: center;
+  border: none;
   border-radius: 999px;
-  font-size: 16px;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
   color: #8d5530;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 2px 2px 0 rgba(139, 88, 35, 0.12);
-  transition: transform 170ms ease, box-shadow 170ms ease;
+  transition: transform 170ms ease, box-shadow 170ms ease, opacity 170ms ease;
+  cursor: pointer;
 }
 
+.doneButton {
+  color: #2f7d46;
+}
+
+.doneButton:active,
 .deleteButton:active {
   transform: scale(0.92);
   box-shadow: 1px 1px 4px rgba(86, 54, 26, 0.12);
+}
+
+.doneButton:disabled,
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .field {

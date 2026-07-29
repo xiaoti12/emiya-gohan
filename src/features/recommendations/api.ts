@@ -13,9 +13,15 @@ function buildQuery(query: RecommendationQuery = {}) {
   if (query.seed != null) {
     params.set("seed", String(query.seed));
   }
+  if (query.excludeSince) {
+    params.set("excludeSince", query.excludeSince);
+  }
   const text = params.toString();
   return text ? `?${text}` : "";
 }
+
+/** 最近 7 个日历日（含今天）做过的菜不推荐 */
+export const RECENT_COOKED_EXCLUDE_DAYS = 7;
 
 export function getRecommendations(
   query: RecommendationQuery = {},

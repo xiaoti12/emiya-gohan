@@ -6,7 +6,11 @@ import { Chip } from "../components/Chip";
 import { EmptyState } from "../components/EmptyState";
 import { PaperCard } from "../components/PaperCard";
 import { Toast } from "../components/Toast";
-import { getRecommendations } from "../features/recommendations/api";
+import {
+  getRecommendations,
+  RECENT_COOKED_EXCLUDE_DAYS,
+} from "../features/recommendations/api";
+import { daysAgoISO } from "../lib/date";
 import { recommendationTags } from "../features/recipes/constants";
 import type { RecipeListItem } from "../features/recipes/types";
 import { PlanSheet } from "../features/recipeRecords/PlanSheet";
@@ -68,7 +72,13 @@ export function HomePage() {
     setLoadError("");
 
     void getRecommendations(
-      { category: selectedTag, limit: 3, seed },
+      {
+        category: selectedTag,
+        limit: 3,
+        seed,
+        // 最近 7 个日历日（含今天）= 今天往前 6 天起
+        excludeSince: daysAgoISO(RECENT_COOKED_EXCLUDE_DAYS - 1),
+      },
       controller.signal,
     )
       .then((result) => {

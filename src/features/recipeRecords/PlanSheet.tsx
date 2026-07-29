@@ -60,6 +60,7 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [markingId, setMarkingId] = useState<string | null>(null);
 
   const fetchRecords = useCallback(async () => {
     if (!open) return;
@@ -120,7 +121,7 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
   }
 
   async function handleDelete(record: RecipeRecord) {
-    if (deletingId) return;
+    if (deletingId || markingId) return;
     setDeletingId(record.id);
     try {
       await deleteRecipeRecord(record.id);
@@ -135,20 +136,70 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
     }
   }
 
+  async function handleMarkCooked(record: RecipeRecord) {
+    if (markingId || deletingId) return;
+    setMarkingId(record.id);
+    setRecords((list) => list.filter((item) => item.id !== record.id));
+    try {
+      await createRecipeRecord({
+        dishName: record.dishName,
+        recordType: "cooked",
+        recipeId: record.recipeId,
+        cookedAt: todayISO(),
+      });
+      try {
+        await deleteRecipeRecord(record.id);
+        onToast(`已记做过：${record.dishName}`);
+      } catch {
+        onToast("已记做过，计划未移除，可手动删除");
+        await fetchRecords();
+      }
+    } catch (err: unknown) {
+      setRecords((list) => {
+        if (list.some((item) => item.id === record.id)) return list;
+        return [...list, record].sort((a, b) => {
+          const dateA = a.plannedDate ?? "9999-12-31";
+          const dateB = b.plannedDate ?? "9999-12-31";
+          if (dateA !== dateB) return dateA.localeCompare(dateB);
+          return a.createdAt.localeCompare(b.createdAt);
+        });
+      });
+      const message =
+        err instanceof Error ? err.message : "标记失败,请重试";
+      onToast(message);
+    } finally {
+      setMarkingId(null);
+    }
+  }
+
+  function openCookedHistory() {
+    onClose();
+    navigate("/cooked-history");
+  }
+
   return (
     <BottomSheet title="要做什么" open={open} onClose={onClose} variant="edge">
       <div className={styles.planSection}>
         <div>
-          <div className={styles.chips} aria-label="日期筛选">
-            {filterChips.map((chip) => (
-              <Chip
-                key={chip}
-                active={filterChip === chip}
-                onClick={() => setFilterChip(chip)}
-              >
-                {chip}
-              </Chip>
-            ))}
+          <div className={styles.listHeader}>
+            <div className={styles.chips} aria-label="日期筛选">
+              {filterChips.map((chip) => (
+                <Chip
+                  key={chip}
+                  active={filterChip === chip}
+                  onClick={() => setFilterChip(chip)}
+                >
+                  {chip}
+                </Chip>
+              ))}
+            </div>
+            <button
+              type="button"
+              className={styles.historyLink}
+              onClick={openCookedHistory}
+            >
+              最近做过
+            </button>
           </div>
           {listError ? (
             <p style={{ color: "#c0392b", fontSize: 13 }}>{listError}</p>
@@ -161,6 +212,8 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
             <ul className={styles.list} aria-label="计划列表">
               {filteredRecords.map((record) => {
                 const name = record.dishName;
+                const busy =
+                  deletingId === record.id || markingId === record.id;
                 const inner = (
                   <>
                     <span className={styles.itemName}>{name}</span>
@@ -191,15 +244,26 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
                         {inner}
                       </div>
                     )}
-                    <button
-                      type="button"
-                      className={styles.deleteButton}
-                      aria-label="删除计划"
-                      onClick={() => void handleDelete(record)}
-                      disabled={deletingId === record.id}
-                    >
-                      ×
-                    </button>
+                    <div className={styles.itemActions}>
+                      <button
+                        type="button"
+                        className={styles.doneButton}
+                        aria-label="标记已做"
+                        onClick={() => void handleMarkCooked(record)}
+                        disabled={busy}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteButton}
+                        aria-label="删除计划"
+                        onClick={() => void handleDelete(record)}
+                        disabled={busy}
+                      >
+                        ×
+                      </button>
+                    </div>
                   </li>
                 );
               })}

@@ -145,17 +145,30 @@ function toDto(row: RecipeRecordRow): RecipeRecordDto {
   };
 }
 
-async function assertRecipeVisible(
+/**
+ * 将请求中的 recipeId 解析为当前家庭可见集合中的有效 id。
+ * - 已在 effective_recipes 中：原样返回
+ * - 是已被家庭派生覆盖的基础菜：返回派生版 id
+ * - 否则 404
+ */
+async function resolveEffectiveRecipeId(
   env: Env,
   familyId: string,
   recipeId: string,
 ) {
-  const found = await env.DB.prepare(recipeRecordQueries.recipeVisibleToFamily)
+  const visible = await env.DB.prepare(recipeRecordQueries.recipeVisibleToFamily)
     .bind(familyId, familyId, recipeId)
     .first();
-  if (!found) {
-    throw new HttpError(404, "RECIPE_NOT_FOUND", "没有找到这道菜");
-  }
+  if (visible) return recipeId;
+
+  const familyVersion = await env.DB.prepare(
+    recipeRecordQueries.findFamilyVersionIdByParent,
+  )
+    .bind(familyId, recipeId)
+    .first<{ id: string }>();
+  if (familyVersion) return familyVersion.id;
+
+  throw new HttpError(404, "RECIPE_NOT_FOUND", "没有找到这道菜");
 }
 
 function validateRecordTypeFilter(value: string | null) {
@@ -172,10 +185,13 @@ export async function listRecipeRecords(
   recordTypeValue: string | null,
 ) {
   const recordType = validateRecordTypeFilter(recordTypeValue);
-  const statement = env.DB.prepare(recipeRecordQueries.listByFamilyAndType).bind(
-    familyId,
-    recordType,
-  );
+  const statement =
+    recordType === "cooked"
+      ? env.DB.prepare(recipeRecordQueries.listCookedByFamily).bind(familyId)
+      : env.DB.prepare(recipeRecordQueries.listByFamilyAndType).bind(
+          familyId,
+          recordType,
+        );
   const result = await statement.all<RecipeRecordRow>();
   return result.results.map(toDto);
 }
@@ -197,14 +213,14 @@ export async function createRecipeRecord(
 
   const dishName = validateDishName(input.dishName);
   const recordType = validateRecordType(input.recordType);
-  const recipeId = validateRecipeId(input.recipeId);
+  const requestedRecipeId = validateRecipeId(input.recipeId);
   const plannedDate = validateDate(input.plannedDate, "plannedDate");
   const cookedAt = validateDate(input.cookedAt, "cookedAt");
   const note = validateNote(input.note);
 
-  if (recipeId) {
-    await assertRecipeVisible(env, familyId, recipeId);
-  }
+  const recipeId = requestedRecipeId
+    ? await resolveEffectiveRecipeId(env, familyId, requestedRecipeId)
+    : null;
 
   const row = await env.DB.prepare(recipeRecordQueries.create)
     .bind(

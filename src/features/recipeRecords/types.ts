@@ -17,6 +17,7 @@ export type CreateRecipeRecordInput = {
   recordType: RecipeRecordType;
   recipeId?: string | null;
   plannedDate?: string | null;
+  cookedAt?: string | null;
   note?: string | null;
 };
 

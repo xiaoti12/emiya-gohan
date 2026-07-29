@@ -9,6 +9,12 @@ export function todayISO() {
   return toISODate(new Date());
 }
 
+export function daysAgoISO(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return toISODate(date);
+}
+
 export function tomorrowISO() {
   const date = new Date();
   date.setDate(date.getDate() + 1);
