@@ -59,6 +59,14 @@
   letter-spacing: -0.035em;
 }
 
+.heroTitleLong {
+  font-size: 28px !important;
+}
+
+.heroTitleSuffix {
+  white-space: nowrap;
+}
+
 .heroCard p:last-child {
   margin: 12px 0 0;
   color: var(--color-muted);
@@ -72,11 +80,10 @@
   height: 116px;
   display: grid;
   place-items: center;
-  border-radius: 32px;
+  border-radius: 28px;
   background: var(--color-paper-warm);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   transform: rotate(5deg);
-  clip-path: polygon(7% 0, 94% 5%, 100% 89%, 8% 100%, 0 18%);
 }
 
 .steam,
@@ -542,6 +549,10 @@
 
   .heroCard h1 {
     font-size: 30px;
+  }
+
+  .heroTitleLong {
+    font-size: 26px !important;
   }
 
   .cutoutPot {

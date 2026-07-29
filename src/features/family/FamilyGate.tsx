@@ -6,10 +6,14 @@ import { getErrorMessage, isApiErrorCode } from "../../lib/errors";
 import { createFamily, verifyFamily } from "./api";
 import {
   clearStoredFamily,
+  loadStoredFamily,
   loadStoredFamilyId,
   saveStoredFamily,
 } from "./familyStore";
+import { formatFamilyTitle } from "./familyName";
 import styles from "./FamilyGate.module.css";
+
+const DEFAULT_DOCUMENT_TITLE = "厨房助手";
 
 type FamilyGateProps = {
   children: ReactNode;
@@ -60,6 +64,24 @@ export function FamilyGate({ children }: FamilyGateProps) {
       void validateStoredFamily();
     }
   }, [validateStoredFamily]);
+
+  useEffect(() => {
+    if (gateState === "ready") {
+      const family = loadStoredFamily();
+      document.title = family?.displayName
+        ? formatFamilyTitle(family.displayName)
+        : DEFAULT_DOCUMENT_TITLE;
+      return;
+    }
+
+    if (gateState === "entry") {
+      const name = displayName.trim();
+      document.title = name ? formatFamilyTitle(name) : DEFAULT_DOCUMENT_TITLE;
+      return;
+    }
+
+    document.title = DEFAULT_DOCUMENT_TITLE;
+  }, [gateState, displayName]);
 
   function switchMode(nextMode: EntryMode) {
     setMode(nextMode);
@@ -146,7 +168,11 @@ export function FamilyGate({ children }: FamilyGateProps) {
         <header className={styles.hero}>
           <p className={styles.eyebrow}>欢迎来到家庭厨房</p>
           <h1>先找到属于你的饭桌</h1>
-          <p>创建一个新家庭，或用同样的家庭名称加入已有空间。</p>
+          <p>
+            {displayName.trim()
+              ? formatFamilyTitle(displayName)
+              : "创建一个新家庭，或用同样的家庭名称加入已有空间。"}
+          </p>
         </header>
 
         {notice ? <p className={styles.notice} role="status">{notice}</p> : null}

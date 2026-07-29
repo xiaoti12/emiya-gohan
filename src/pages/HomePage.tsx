@@ -10,7 +10,7 @@ import { getRecommendations } from "../features/recommendations/api";
 import { recommendationTags } from "../features/recipes/constants";
 import type { RecipeListItem } from "../features/recipes/types";
 import { PlanSheet } from "../features/recipeRecords/PlanSheet";
-import { formatFamilyTitle } from "../features/family/familyName";
+import { formatFamilyTitleParts } from "../features/family/familyName";
 import { loadStoredFamily } from "../features/family/familyStore";
 import { getErrorMessage } from "../lib/errors";
 import styles from "./HomePage.module.css";
@@ -47,6 +47,9 @@ const quickEntries = [
 export function HomePage() {
   const navigate = useNavigate();
   const family = loadStoredFamily();
+  const familyName = family?.displayName ?? "";
+  const titleParts = formatFamilyTitleParts(familyName);
+  const isLongTitle = Array.from(familyName.trim()).length > 6;
   const [recommendOpen, setRecommendOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState("全部");
   const [recommendations, setRecommendations] = useState<RecipeListItem[]>([]);
@@ -200,7 +203,10 @@ export function HomePage() {
         <header className={styles.hero}>
           <div className={styles.heroCard}>
             <p className={styles.eyebrow}>家庭厨房</p>
-            <h1>{formatFamilyTitle(family?.displayName ?? "")}</h1>
+            <h1 className={isLongTitle ? styles.heroTitleLong : undefined}>
+              {titleParts.prefix}
+              <span className={styles.heroTitleSuffix}>{titleParts.suffix}</span>
+            </h1>
             <p>看看冰箱里有什么，今天就少纠结一点。</p>
           </div>
           <div className={styles.cutoutPot} aria-hidden="true">
