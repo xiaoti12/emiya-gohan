@@ -23,7 +23,7 @@ import styles from "./HomePage.module.css";
 const quickEntries = [
   {
     title: "菜谱浏览",
-    desc: "搜索家常菜、汤羹、主食",
+    desc: "搜菜名、标签",
     iconSrc: "/home_card/book.svg",
     to: "/recipes",
     tone: "white",
@@ -237,7 +237,7 @@ export function HomePage() {
               {titleParts.prefix}
               <span className={styles.heroTitleSuffix}>{titleParts.suffix}</span>
             </h1>
-            <p>看看冰箱里有什么，今天就少纠结一点。</p>
+            <p>打开冰箱，少纠结一点</p>
           </div>
           <div className={styles.cutoutPot} aria-hidden="true">
             <span className={styles.steam} />

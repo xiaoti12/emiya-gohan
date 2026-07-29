@@ -229,7 +229,7 @@ export function RecipeBrowsePage() {
     <AppShell>
       <TopBar
         title="菜谱浏览"
-        subtitle="搜索菜名、标签或食材，看看今天能做什么。"
+        subtitle="搜菜名、标签，找今天灵感。"
         actionText="＋"
         actionLabel="新增菜谱"
         actionTo="/recipes/new"
