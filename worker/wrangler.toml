@@ -4,7 +4,8 @@ compatibility_date = "2026-07-01"
 
 [vars]
 # 多个域名用逗号分隔；本地开发默认允许 Vite 端口。
-ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+# 生产前端 Origin 必须带协议，且与浏览器地址栏完全一致（含 https）。
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,https://emiya-gohan.xiaoti.us.ci"
 
 [[d1_databases]]
 binding = "DB"
