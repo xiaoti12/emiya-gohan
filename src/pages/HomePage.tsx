@@ -15,7 +15,7 @@ import { recommendationTags } from "../features/recipes/constants";
 import type { RecipeListItem } from "../features/recipes/types";
 import { PlanSheet } from "../features/recipeRecords/PlanSheet";
 import { formatFamilyTitleParts } from "../features/family/familyName";
-import { loadStoredFamily } from "../features/family/familyStore";
+import { clearStoredFamily, loadStoredFamily } from "../features/family/familyStore";
 import { withCoverImageParams } from "../lib/coverImage";
 import { getErrorMessage } from "../lib/errors";
 import styles from "./HomePage.module.css";
@@ -63,6 +63,7 @@ export function HomePage() {
   const [loadError, setLoadError] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
   const [planOpen, setPlanOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const [toast, setToast] = useState("");
 
   useEffect(() => {
@@ -225,13 +226,42 @@ export function HomePage() {
             onClose={() => setPlanOpen(false)}
             onToast={setToast}
           />
+          <BottomSheet
+            title="退出家庭"
+            open={leaveOpen}
+            onClose={() => setLeaveOpen(false)}
+            variant="edge"
+          >
+            <p className={styles.leaveConfirmText}>
+              退出后将清除本机当前家庭信息，需要重新创建或按名称加入。确定退出吗？
+            </p>
+            <div className={styles.leaveActions}>
+              <button
+                className={styles.leaveCancelButton}
+                type="button"
+                onClick={() => setLeaveOpen(false)}
+              >
+                再想想
+              </button>
+              <button
+                className={styles.primaryButton}
+                type="button"
+                onClick={() => {
+                  clearStoredFamily();
+                  window.location.reload();
+                }}
+              >
+                确认退出
+              </button>
+            </div>
+          </BottomSheet>
           <Toast message={toast} bottom="high" />
         </>
       }
     >
       <div className={styles.contentWithChat}>
         <header className={styles.hero}>
-          <div className={styles.heroCard}>
+          <div className={styles.heroCard} onClick={() => setLeaveOpen(true)}>
             <p className={styles.eyebrow}>家庭厨房</p>
             <h1 className={isLongTitle ? styles.heroTitleLong : undefined}>
               {titleParts.prefix}

@@ -600,3 +600,31 @@
     font-size: 12px;
   }
 }
+
+.leaveConfirmText {
+  margin: 4px 0 18px;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.leaveActions {
+  display: flex;
+  gap: 12px;
+}
+
+.leaveActions .primaryButton {
+  flex: 1;
+}
+
+.leaveCancelButton {
+  flex: 1;
+  padding: 11px 15px;
+  border-radius: 999px;
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 950;
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: 4px 4px 0 rgba(111, 62, 24, 0.10);
+  transition: transform var(--transition-paper), box-shadow var(--transition-paper);
+}
