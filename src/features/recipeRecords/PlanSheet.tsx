@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Chip } from "../../components/Chip";
@@ -6,10 +6,10 @@ import { EmptyState } from "../../components/EmptyState";
 import {
   createRecipeRecord,
   deleteRecipeRecord,
-  listRecipeRecords,
 } from "./api";
 import { DishSuggestInput } from "./DishSuggestInput";
 import type { RecipeRecord } from "./types";
+import { usePlannedRecords } from "../../hooks/useRecipeRecords";
 import {
   formatDisplayDate,
   nearestWeekendISO,
@@ -47,11 +47,36 @@ function dateLabel(record: RecipeRecord) {
   return "未设置日期";
 }
 
+// 复用后端排序规则：planned_date ASC（无日期排末尾）→ created_at ASC。
+// 删除/新增的乐观更新都借此保持顺序与服务端一致。
+function sortPlannedRecords(list: RecipeRecord[]): RecipeRecord[] {
+  return [...list].sort((a, b) => {
+    const dateA = a.plannedDate ?? "9999-12-31";
+    const dateB = b.plannedDate ?? "9999-12-31";
+    if (dateA !== dateB) return dateA.localeCompare(dateB);
+    return a.createdAt.localeCompare(b.createdAt);
+  });
+}
+
+// 用真实记录替换缓存里的临时项；若已存在同名同日期项（重拉对帐过），直接跳过。
+function replaceTemp(
+  list: RecipeRecord[] | undefined,
+  tempId: string,
+  created: RecipeRecord,
+): RecipeRecord[] {
+  const base = list ?? [];
+  if (!base.some((item) => item.id === tempId)) {
+    if (base.some((item) => item.id === created.id)) return base;
+    return [...base, created];
+  }
+  return base.map((item) => (item.id === tempId ? created : item));
+}
+
 export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
   const navigate = useNavigate();
-  const [records, setRecords] = useState<RecipeRecord[]>([]);
-  const [listLoading, setListLoading] = useState(false);
-  const [listError, setListError] = useState("");
+  const { records: cachedRecords, error: listError, mutate, loading: listLoading } =
+    usePlannedRecords(open);
+  const records = cachedRecords ?? [];
   const [filterChip, setFilterChip] = useState<FilterChip>("全部");
 
   const [dishName, setDishName] = useState("");
@@ -61,26 +86,6 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
   const [submitError, setSubmitError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [markingId, setMarkingId] = useState<string | null>(null);
-
-  const fetchRecords = useCallback(async () => {
-    if (!open) return;
-    setListLoading(true);
-    setListError("");
-    try {
-      const result = await listRecipeRecords("planned");
-      setRecords(result);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "加载计划失败,请重试";
-      setListError(message);
-    } finally {
-      setListLoading(false);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    void fetchRecords();
-  }, [fetchRecords]);
 
   const filteredRecords = useMemo(() => {
     const filterDate = filterDateMap[filterChip];
@@ -99,19 +104,50 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
     const finalDishName = dishName.trim() || "一道好菜";
     setSubmitError("");
     setSubmitting(true);
+
+    // 乐观插入：写请求发出前先放一条临时项，UI 立即可见。
+    // 用 Date.now() 生成临时 id，写成功后用后端返回的真实记录替换。
+    const tempId = `temp-${Date.now()}`;
+    const plannedDate = dateMap[planDate];
+    const optimisticRecord: RecipeRecord = {
+      id: tempId,
+      recipeId: recipeId,
+      dishName: finalDishName,
+      recordType: "planned",
+      plannedDate,
+      cookedAt: null,
+      note: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await mutate(
+      (list) => sortPlannedRecords([...(list ?? []), optimisticRecord]),
+      { revalidate: false },
+    );
+
     try {
-      await createRecipeRecord({
+      const created = await createRecipeRecord({
         dishName: finalDishName,
         recordType: "planned",
         recipeId: recipeId,
-        plannedDate: dateMap[planDate],
+        plannedDate,
       });
+      // 用后端返回的真实记录替换临时项。
+      await mutate(
+        (list) => sortPlannedRecords(replaceTemp(list, tempId, created)),
+        { revalidate: false },
+      );
       setDishName("");
       setRecipeId(null);
       setPlanDate("今天");
       onToast(`已添加：${finalDishName}（${planDate}）`);
-      await fetchRecords();
+      void mutate();
     } catch (err: unknown) {
+      // 失败：移除临时项并提示。
+      await mutate(
+        (list) => (list ?? []).filter((item) => item.id !== tempId),
+        { revalidate: false },
+      );
       const message =
         err instanceof Error ? err.message : "添加失败,请重试";
       setSubmitError(message);
@@ -123,11 +159,18 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
   async function handleDelete(record: RecipeRecord) {
     if (deletingId || markingId) return;
     setDeletingId(record.id);
+    // 乐观删除：立即从缓存移除，后台再静默对帐。
+    const previous = records;
+    await mutate(
+      (list) => (list ?? []).filter((item) => item.id !== record.id),
+      { revalidate: false },
+    );
     try {
       await deleteRecipeRecord(record.id);
-      setRecords((list) => list.filter((item) => item.id !== record.id));
       onToast("已删除计划");
+      void mutate();
     } catch (err: unknown) {
+      await mutate(previous, { revalidate: false });
       const message =
         err instanceof Error ? err.message : "删除失败,请重试";
       onToast(message);
@@ -139,7 +182,12 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
   async function handleMarkCooked(record: RecipeRecord) {
     if (markingId || deletingId) return;
     setMarkingId(record.id);
-    setRecords((list) => list.filter((item) => item.id !== record.id));
+    // 乐观删除：先把 planned 缓存里的这条移除，提升顺滑度；失败再回滚。
+    const previous = records;
+    await mutate(
+      (list) => (list ?? []).filter((item) => item.id !== record.id),
+      { revalidate: false },
+    );
     try {
       await createRecipeRecord({
         dishName: record.dishName,
@@ -150,20 +198,14 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
       try {
         await deleteRecipeRecord(record.id);
         onToast(`已记做过：${record.dishName}`);
+        await mutate();
       } catch {
         onToast("已记做过，计划未移除，可手动删除");
-        await fetchRecords();
+        await mutate();
       }
     } catch (err: unknown) {
-      setRecords((list) => {
-        if (list.some((item) => item.id === record.id)) return list;
-        return [...list, record].sort((a, b) => {
-          const dateA = a.plannedDate ?? "9999-12-31";
-          const dateB = b.plannedDate ?? "9999-12-31";
-          if (dateA !== dateB) return dateA.localeCompare(dateB);
-          return a.createdAt.localeCompare(b.createdAt);
-        });
-      });
+      // 回滚到操作前的缓存
+      await mutate(previous, { revalidate: false });
       const message =
         err instanceof Error ? err.message : "标记失败,请重试";
       onToast(message);
@@ -202,7 +244,11 @@ export function PlanSheet({ open, onClose, onToast }: PlanSheetProps) {
             </button>
           </div>
           {listError ? (
-            <p style={{ color: "#c0392b", fontSize: 13 }}>{listError}</p>
+            <p style={{ color: "#c0392b", fontSize: 13 }}>
+              {listError instanceof Error
+                ? listError.message
+                : "加载计划失败,请重试"}
+            </p>
           ) : null}
           {listLoading ? (
             <p style={{ color: "var(--color-muted)", fontSize: 13 }}>
