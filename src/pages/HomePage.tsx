@@ -11,6 +11,12 @@ import {
   RECENT_COOKED_EXCLUDE_DAYS,
 } from "../features/recommendations/api";
 import { daysAgoISO } from "../lib/date";
+import {
+  loadRecommendCount,
+  RECOMMEND_COUNT_MAX,
+  RECOMMEND_COUNT_MIN,
+  saveRecommendCount,
+} from "../lib/storageKeys";
 import { recommendationTags } from "../features/recipes/constants";
 import type { RecipeListItem } from "../features/recipes/types";
 import { PlanSheet } from "../features/recipeRecords/PlanSheet";
@@ -58,6 +64,10 @@ export function HomePage() {
   const [recommendOpen, setRecommendOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState("全部");
   const [recommendations, setRecommendations] = useState<RecipeListItem[]>([]);
+  // 已落盘的数量，作为请求参数（仅在“换一批”时更新）
+  const [recommendCount, setRecommendCount] = useState(loadRecommendCount);
+  // sheet 内交互的临时数量，关闭时回滚到落盘值
+  const [draftCount, setDraftCount] = useState(loadRecommendCount);
   const [seed, setSeed] = useState(Date.now());
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
@@ -76,7 +86,7 @@ export function HomePage() {
     void getRecommendations(
       {
         category: selectedTag,
-        limit: 3,
+        limit: recommendCount,
         seed,
         // 最近 7 个日历日（含今天）= 今天往前 6 天起
         excludeSince: daysAgoISO(RECENT_COOKED_EXCLUDE_DAYS - 1),
@@ -98,7 +108,7 @@ export function HomePage() {
       });
 
     return () => controller.abort();
-  }, [recommendOpen, selectedTag, seed, reloadToken]);
+  }, [recommendOpen, selectedTag, seed, reloadToken, recommendCount]);
 
   useEffect(() => {
     if (!toast) return;
@@ -107,7 +117,17 @@ export function HomePage() {
   }, [toast]);
 
   function toggleRecommend() {
-    setRecommendOpen((open) => !open);
+    setRecommendOpen((open) => {
+      const next = !open;
+      if (next) setDraftCount(recommendCount);
+      return next;
+    });
+  }
+
+  function persistAndReload() {
+    saveRecommendCount(draftCount);
+    setRecommendCount(draftCount);
+    setSeed(Date.now());
   }
 
   function renderRecommendationBody() {
@@ -203,11 +223,36 @@ export function HomePage() {
           <BottomSheet title="推荐菜品" open={recommendOpen} onClose={() => setRecommendOpen(false)} variant="edge">
             <div className={`${styles.panelHead} ${styles.compactHead}`}>
               <h3 className={styles.panelTitle}>今晚可以做</h3>
+              <div className={styles.countStepper} aria-label="推荐数量">
+                <button
+                  className={styles.countButton}
+                  type="button"
+                  disabled={draftCount <= RECOMMEND_COUNT_MIN}
+                  onClick={() =>
+                    setDraftCount((count) => Math.max(RECOMMEND_COUNT_MIN, count - 1))
+                  }
+                  aria-label="减少推荐数量"
+                >
+                  −
+                </button>
+                <span className={styles.countValue}>{draftCount}</span>
+                <button
+                  className={styles.countButton}
+                  type="button"
+                  disabled={draftCount >= RECOMMEND_COUNT_MAX}
+                  onClick={() =>
+                    setDraftCount((count) => Math.min(RECOMMEND_COUNT_MAX, count + 1))
+                  }
+                  aria-label="增加推荐数量"
+                >
+                  +
+                </button>
+              </div>
               <button
                 className={styles.primaryButton}
                 type="button"
                 disabled={loading}
-                onClick={() => setSeed(Date.now())}
+                onClick={persistAndReload}
               >
                 换一批
               </button>

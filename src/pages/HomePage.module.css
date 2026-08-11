@@ -309,6 +309,45 @@
   margin-bottom: 14px;
 }
 
+.countStepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.countButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(111, 62, 24, 0.28);
+  background: #fff8ed;
+  color: var(--color-ink);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-paper);
+}
+
+.countButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.countButton:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.countValue {
+  min-width: 20px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+}
+
 .primaryButton,
 .submitButton {
   padding: 11px 15px;
